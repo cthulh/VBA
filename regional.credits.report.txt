@@ -1,0 +1,69 @@
+Sub sort_column_A()
+Dim lastrow As Long, x As Long
+
+lastrow = Cells(Rows.Count, 1).End(xlUp).Row
+
+    Columns("A:A").Select
+    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Add Key:=Range("A1"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets("Sheet4").Sort
+        .SetRange Range("A1:A" & lastrow)
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    
+    For x = 1 To lastrow
+    
+        If Right(Left(Cells(x, 1).Value, 5), 1) = "." Then
+        Else
+            Rows(x).ClearContents
+        End If
+    
+    Next x
+    
+    Columns("A:A").Select
+    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Add Key:=Range("A1"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets("Sheet4").Sort
+        .SetRange Range("A1:A" & lastrow)
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    
+    
+    Call text_to_columns
+    
+    Columns("A:A").ColumnWidth = 10
+    Columns("M:M").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    Columns("P:P").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    
+    Range("B2").TextToColumns Destination:=Range("B2"), DataType:=xlDelimited, _
+    TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+    Semicolon:=False, Comma:=False, Space:=False, Other:=False
+    
+    Application.ScreenUpdating = True
+    Application.Calculation = xlAutomatic
+    
+End Sub
+
+
+Sub text_to_columns()
+    Columns(1).TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+        Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :="|", FieldInfo:=Array(Array(1, 1), Array(2, 1), Array(3, 1), Array(4, 1), Array(5, _
+        1), Array(6, 1), Array(7, 1), Array(8, 1), Array(9, 1), Array(10, 1), Array(11, 1), Array(12 _
+        , 1), Array(13, 1), Array(14, 1)), TrailingMinusNumbers:=True
+End Sub
+
