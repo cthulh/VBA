@@ -1,5 +1,7 @@
 Sub sort_column_A()
-Dim lastrow As Long, x As Long
+Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long
+Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
+Dim ztdaarr() As Variant
 
 lastrow = Cells(Rows.Count, 1).End(xlUp).Row
 
@@ -41,19 +43,107 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
         .Apply
     End With
     
-    
     Call text_to_columns
     
     Columns("A:A").ColumnWidth = 10
     Columns("M:M").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
     Columns("P:P").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
     
+    On Error GoTo skip
     Range("B2").TextToColumns Destination:=Range("B2"), DataType:=xlDelimited, _
     TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
     Semicolon:=False, Comma:=False, Space:=False, Other:=False
     
+    lastrow = Cells(Rows.Count, 2).End(xlUp).Row
+    
+    ReDim ztdaarr(1 To lastrow, 0 To 10) As Variant
+    
+    For y = 1 To lastrow
+    On Error GoTo nexxt
+            
+        tempstr = Cells(y, 14).Value
+        Cells(y, 14).Value = Replace(tempstr, "-", "")
+                
+        tempstr = Cells(y, 17).Value
+        Cells(y, 17).Value = Replace(tempstr, "-", "")
+    
+        tempstr = Trim(Cells(y, 12).Value)
+        If InStr(tempstr, " ") > 0 Then
+            accountnum = Mid(tempstr, 1, InStr(tempstr, " ") - 1)
+            accountdesc = Trim(Mid(tempstr, InStr(tempstr, " ") + 1, Len(tempstr) - InStr(tempstr, " ")))
+            Cells(y, 12).Value = accountnum
+            Cells(y, 13).Value = accountdesc
+        End If
+
+        tempstr = Trim(Cells(y, 15).Value)
+        If InStr(tempstr, " ") > 0 Then
+            codeprod = Mid(tempstr, 1, InStr(tempstr, " ") - 1)
+            codedesc = Trim(Mid(tempstr, InStr(tempstr, " ") + 1, Len(tempstr) - InStr(tempstr, " ")))
+            Cells(y, 15).Value = codeprod
+            Cells(y, 16).Value = codedesc
+        End If
+        
+        tempstr = Trim(Cells(y, 19).Value)
+        If InStr(tempstr, " ") > 0 Then
+            reasoncode = Mid(tempstr, 1, InStr(tempstr, " ") - 1)
+            reasondesc = Trim(Mid(tempstr, InStr(tempstr, " ") + 1, Len(tempstr) - InStr(tempstr, " ")))
+            Cells(y, 19).Value = reasoncode
+            Cells(y, 20).Value = reasondesc
+        End If
+        
+        ztdaarr(y, 0) = Cells(y, 2).Value
+        ztdaarr(y, 1) = Cells(y, 3).Value
+        ztdaarr(y, 2) = Cells(y, 4).Value
+        ztdaarr(y, 4) = Cells(y, 12).Value
+        ztdaarr(y, 5) = Cells(y, 13).Value
+        ztdaarr(y, 6) = Cells(y, 14).Value
+        ztdaarr(y, 7) = Cells(y, 15).Value
+        ztdaarr(y, 8) = Cells(y, 16).Value
+        ztdaarr(y, 9) = Cells(y, 17).Value
+        ztdaarr(y, 10) = Cells(y, 19).Value
+        
+nexxt:
+    Next y
+    
+    Cells.EntireColumn.AutoFit
+    
+    Sheet7.Activate
+    Call text_to_columns
+    Columns("A:A").ColumnWidth = 12
+    
+    
+    For l = 1 To UBound(ztdaarr, 1)
+    
+        ztdaarr(l, 3) = chamberfinder(ztdaarr(l, 0), ztdaarr(l, 4), ztdaarr(l, 7))
+    
+    Next l
+    
+    With Sheet6
+    
+        For k = 1 To UBound(ztdaarr, 1)
+        
+            .Cells(k + 2, 2).Value = ztdaarr(k, 0)
+            .Cells(k + 2, 3).Value = ztdaarr(k, 1)
+            .Cells(k + 2, 4).Value = ztdaarr(k, 2)
+            .Cells(k + 2, 5).Value = ztdaarr(k, 3)
+            .Cells(k + 2, 6).Value = ztdaarr(k, 4)
+            .Cells(k + 2, 7).Value = ztdaarr(k, 5)
+            .Cells(k + 2, 8).Value = ztdaarr(k, 6)
+            .Cells(k + 2, 9).Value = ztdaarr(k, 7)
+            .Cells(k + 2, 10).Value = ztdaarr(k, 8)
+            .Cells(k + 2, 11).Value = ztdaarr(k, 9)
+            .Cells(k + 2, 12).Value = ztdaarr(k, 10)
+        
+        Next k
+    
+        .Activate
+    
+    End With
+     
+skip:
     Application.ScreenUpdating = True
     Application.Calculation = xlAutomatic
+
     
 End Sub
 
@@ -65,5 +155,37 @@ Sub text_to_columns()
         :="|", FieldInfo:=Array(Array(1, 1), Array(2, 1), Array(3, 1), Array(4, 1), Array(5, _
         1), Array(6, 1), Array(7, 1), Array(8, 1), Array(9, 1), Array(10, 1), Array(11, 1), Array(12 _
         , 1), Array(13, 1), Array(14, 1)), TrailingMinusNumbers:=True
+        
+    Range("B6").TextToColumns Destination:=Range("B2"), DataType:=xlDelimited, _
+    TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+    Semicolon:=False, Comma:=False, Space:=False, Other:=False
+    
 End Sub
+
+Function chamberfinder(ByVal daate As String, ByVal cust As String, ByVal prod As String) As String
+
+Dim arrayy() As Variant, lastrow As Long, x As Long, k As Long, l As Long
+
+k = 0
+
+With Sheet7
+    
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+
+    arrayy = Range("B4:J" & lastrow)
+
+    For l = 1 To UBound(arrayy, 1)
+    
+        If arrayy(l, 1) = daate And arrayy(l, 2) = cust And arrayy(l, 3) = prod Then
+            chamberfinder = arrayy(l, 4)
+            Exit Function
+        End If
+                
+    Next l
+
+End With
+
+End Function
+
+
 
