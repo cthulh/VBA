@@ -1,7 +1,8 @@
-Sub sort_column_A()
+Sub main_sub()
 Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long
 Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
-Dim ztdaarr() As Variant
+Dim ztdaarr() As Variant, arrayy() As Variant
+
 
 lastrow = Cells(Rows.Count, 1).End(xlUp).Row
 
@@ -106,15 +107,25 @@ nexxt:
     Next y
     
     Cells.EntireColumn.AutoFit
-    
-    Sheet7.Activate
+    With Sheet7
+    .Activate
     Call text_to_columns
     Columns("A:A").ColumnWidth = 12
+    
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+
+    arrayy = .Range("B4:J" & lastrow)
+
+    End With
     
     
     For l = 1 To UBound(ztdaarr, 1)
     
-        ztdaarr(l, 3) = chamberfinder(ztdaarr(l, 0), ztdaarr(l, 4), ztdaarr(l, 7))
+        For k = 1 To UBound(arrayy, 1)
+        
+            'fetching chamber number
+        
+        Next k
     
     Next l
     
@@ -161,31 +172,3 @@ Sub text_to_columns()
     Semicolon:=False, Comma:=False, Space:=False, Other:=False
     
 End Sub
-
-Function chamberfinder(ByVal daate As String, ByVal cust As String, ByVal prod As String) As String
-
-Dim arrayy() As Variant, lastrow As Long, x As Long, k As Long, l As Long
-
-k = 0
-
-With Sheet7
-    
-    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
-
-    arrayy = Range("B4:J" & lastrow)
-
-    For l = 1 To UBound(arrayy, 1)
-    
-        If arrayy(l, 1) = daate And arrayy(l, 2) = cust And arrayy(l, 3) = prod Then
-            chamberfinder = arrayy(l, 4)
-            Exit Function
-        End If
-                
-    Next l
-
-End With
-
-End Function
-
-
-
