@@ -1,5 +1,5 @@
 Sub main_sub()
-Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long
+Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long, j As Long
 Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
 Dim ztdaarr() As Variant, arrayy() As Variant
 
@@ -55,10 +55,25 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
     TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
     Semicolon:=False, Comma:=False, Space:=False, Other:=False
     
+    With Sheet7
+        .Activate
+        
+        Call text_to_columns
+        
+        .Cells.EntireColumn.AutoFit
+        .Columns("A:A").ColumnWidth = 12
+        
+        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+        arrayy = .Range("B4:J" & lastrow)
+    
+    End With
+    
+    Sheet19.Activate
+    
     lastrow = Cells(Rows.Count, 2).End(xlUp).Row
     
     ReDim ztdaarr(1 To lastrow, 0 To 10) As Variant
-    
+
     For y = 1 To lastrow
     On Error GoTo nexxt
             
@@ -92,7 +107,7 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
             Cells(y, 20).Value = reasondesc
         End If
         
-        ztdaarr(y, 0) = Cells(y, 2).Value
+        ztdaarr(y, 0) = Trim(Cells(y, 2).Value)
         ztdaarr(y, 1) = Cells(y, 3).Value
         ztdaarr(y, 2) = Cells(y, 4).Value
         ztdaarr(y, 4) = Cells(y, 12).Value
@@ -103,33 +118,28 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
         ztdaarr(y, 9) = Cells(y, 17).Value
         ztdaarr(y, 10) = Cells(y, 19).Value
         
+        'fetching chamber number
+
+        For l = 1 To UBound(arrayy, 1)
+        
+            If arrayy(l, 2) = ztdaarr(y, 0) And arrayy(l, 4) = ztdaarr(y, 4) And arrayy(l, 6) = ztdaarr(y, 7) Then
+            
+                ztdaarr(y, 3) = arrayy(l, 9)
+                
+            End If
+        
+        Next l
+        
 nexxt:
     Next y
     
     Cells.EntireColumn.AutoFit
-    With Sheet7
-    .Activate
-    Call text_to_columns
-    Columns("A:A").ColumnWidth = 12
     
-    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
-
-    arrayy = .Range("B4:J" & lastrow)
-
-    End With
-    
-    
-    For l = 1 To UBound(ztdaarr, 1)
-    
-        For k = 1 To UBound(arrayy, 1)
-        
-            'fetching chamber number
-        
-        Next k
-    
-    Next l
     
     With Sheet6
+    
+       lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+       .Range(.Cells(3, 2), .Cells(lastrow, 12)).ClearContents
     
         For k = 1 To UBound(ztdaarr, 1)
         
