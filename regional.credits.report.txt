@@ -3,6 +3,11 @@ Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long, j As
 Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
 Dim ztdaarr() As Variant, arrayy() As Variant
 
+If Sheet7.Cells(1, 2).Value = "" Or Sheet6.Cells(1, 2).Value = "" Then
+    MsgBox ("There is no data.")
+    Exit Sub
+End If
+    
 
 lastrow = Cells(Rows.Count, 1).End(xlUp).Row
 
@@ -139,7 +144,7 @@ nexxt:
     With Sheet6
     
        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
-       .Range(.Cells(3, 2), .Cells(lastrow, 12)).ClearContents
+       .Range(.Cells(3, 2), .Cells(lastrow, 15)).ClearContents
     
         For k = 1 To UBound(ztdaarr, 1)
         
@@ -154,6 +159,16 @@ nexxt:
             .Cells(k + 2, 10).Value = ztdaarr(k, 8)
             .Cells(k + 2, 11).Value = ztdaarr(k, 9)
             .Cells(k + 2, 12).Value = ztdaarr(k, 10)
+            
+            'if the credit qty is >3 then put an "X" marker in the column
+            If ztdaarr(k, 9) > 3 Then
+                .Cells(k + 2, 13).Value = "X"
+            End If
+            
+            'if credit value is > £50 then put an "X" marker in the column
+            If ztdaarr(k, 6) > 50 Then
+                .Cells(k + 2.14).Value = "X"
+            End If
         
         Next k
     
@@ -162,10 +177,11 @@ nexxt:
     End With
      
 skip:
+    Call investigate
+    
     Application.ScreenUpdating = True
     Application.Calculation = xlAutomatic
 
-    
 End Sub
 
 
@@ -181,4 +197,52 @@ Sub text_to_columns()
     TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
     Semicolon:=False, Comma:=False, Space:=False, Other:=False
     
+End Sub
+
+Sub investigate()
+
+Dim x As Long, y As Long, z As Long, lastrow As Long, temp_val As Long
+Dim prod_treshold As Long, route_treshold As Long
+
+With Sheet6
+
+    'exit if there is no data
+    If .Cells(3, 3).Value = "" Then
+        MsgBox ("There is no data.")
+        Exit Sub
+    End If
+    
+    'fetch tresholds for investigation
+    prod_treshold = Mid(.Cells(2, 15).Value, 2, Len(.Cells(2, 15).Value) - 1)
+    route_treshold = Mid(.Cells(2, 16).Value, 2, Len(.Cells(2, 16).Value) - 1)
+
+    'total number of rows in the report
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    
+    'cycle all rows in the report starting from row 3 [header takes up 2 top rows]
+    For x = 3 To lastrow
+    
+        'calculate how many items this route had credited in total
+        temp_val = Application.WorksheetFunction.SumIf(.Range(.Cells(3, 4), .Cells(lastrow, 4)), .Cells(x, 4).Value, .Range(.Cells(3, 11), .Cells(lastrow, 11)))
+        'mark with an "X" if the route had over 10 items credited
+        If temp_val > route_treshold Then
+            .Cells(x, 16).Value = "X"
+        End If
+        
+        'calculate how many items this product was credited across all depots
+        temp_val = Application.WorksheetFunction.SumIf(.Range(.Cells(3, 9), .Cells(lastrow, 9)), .Cells(x, 9).Value, .Range(.Cells(3, 11), .Cells(lastrow, 11)))
+        'mark with an "X" if the product was credited for over 10 items across all depots
+        If temp_val > prod_treshold Then
+            .Cells(x, 15).Value = "X"
+        End If
+        
+        If .Cells(x, 13).Value = "X" Or .Cells(x, 14).Value = "X" Or .Cells(x, 15).Value = "X" Or .Cells(x, 16).Value = "X" Then
+            .Cells(x, 17).Value = "INVESTIGATE"
+        End If
+    
+    Next x
+
+End With
+
+
 End Sub
