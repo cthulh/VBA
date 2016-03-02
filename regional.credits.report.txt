@@ -3,7 +3,7 @@ Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long, j As
 Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
 Dim ztdaarr() As Variant, arrayy() As Variant
 
-If Sheet7.Cells(1, 2).Value = "" Or Sheet6.Cells(1, 2).Value = "" Then
+If Sheet7.Cells(1, 1).Value = "" Or Sheet6.Cells(1, 1).Value = "" Then
     MsgBox ("There is no data.")
     Exit Sub
 End If
@@ -12,10 +12,10 @@ End If
 lastrow = Cells(Rows.Count, 1).End(xlUp).Row
 
     Columns("A:A").Select
-    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Clear
-    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Add Key:=Range("A1"), _
+    ActiveWorkbook.Worksheets("Download").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Download").Sort.SortFields.Add Key:=Range("A1"), _
         SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    With ActiveWorkbook.Worksheets("Sheet4").Sort
+    With ActiveWorkbook.Worksheets("Download").Sort
         .SetRange Range("A1:A" & lastrow)
         .Header = xlNo
         .MatchCase = False
@@ -37,10 +37,10 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
     Next x
     
     Columns("A:A").Select
-    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Clear
-    ActiveWorkbook.Worksheets("Sheet4").Sort.SortFields.Add Key:=Range("A1"), _
+    ActiveWorkbook.Worksheets("Download").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Download").Sort.SortFields.Add Key:=Range("A1"), _
         SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    With ActiveWorkbook.Worksheets("Sheet4").Sort
+    With ActiveWorkbook.Worksheets("Download").Sort
         .SetRange Range("A1:A" & lastrow)
         .Header = xlNo
         .MatchCase = False
@@ -144,7 +144,7 @@ nexxt:
     With Sheet6
     
        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
-       .Range(.Cells(3, 2), .Cells(lastrow, 15)).ClearContents
+       .Range(.Cells(3, 2), .Cells(lastrow, 17)).ClearContents
     
         For k = 1 To UBound(ztdaarr, 1)
         
@@ -201,7 +201,7 @@ End Sub
 
 Sub investigate()
 
-Dim x As Long, y As Long, z As Long, lastrow As Long, temp_val As Long
+Dim x As Long, lastrow As Long, temp_val As Long
 Dim prod_treshold As Long, route_treshold As Long
 
 With Sheet6
@@ -243,6 +243,35 @@ With Sheet6
     Next x
 
 End With
+
+End Sub
+
+Sub per_chamber()
+'LOOKUPS tab, procedure to substitute all formulas to minimise recalc time
+
+Dim x As Long, y As Long, z As Long, lastrow As Long
+Dim data_arr() As Variant
+
+y = 1
+
+With Sheet3
+
+    lastrow = .Cells(Rows.Count, 10).End(xlUp).Row
+    ReDim data_arr(1 To lastrow, 1 To 8) As Variant
+    
+    For x = 1 To lastrow
+    
+        If Right(.Cells(x, 10).Value, 2) = "10" Then
+            'populate 1st column in the array with chamber numbers
+            data_arr(y, 1) = .Cells(x, 11).Value
+            y = y + 1
+        
+        End If
+    
+    Next x
+
+End With
+
 
 
 End Sub
