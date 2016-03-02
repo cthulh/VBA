@@ -1,3 +1,10 @@
+Sub delrow()
+    Selection.Delete Shift:=xlUp
+End Sub
+Sub addrow()
+    Selection.Insert Shift:=xlDown
+End Sub
+
 Sub forecast()
 
 Dim lastrow As Long, lastcol As Long, x As Long, y As Long, z As Long, j As Long, k As Long, l As Long
@@ -104,7 +111,7 @@ With Sheet5
             GoTo skip
             
         Else
-        
+            On Error GoTo nexxt
             .Cells(z, 2).Value = expiredarr(k, 1)
             .Cells(z, 3).Value = expiredarr(k, 2)
             .Cells(z, 4).Value = expiredarr(k, 3)
@@ -115,10 +122,8 @@ With Sheet5
             .Range(.Cells(z, 2), .Cells(z, 5)).HorizontalAlignment = xlCenter
             .Range(.Cells(z, 2), .Cells(z, 5)).VerticalAlignment = xlCenter
             .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).LineStyle = xlContinuous
-            .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).ColorIndex = 0
-            .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).TintAndShade = 0
             .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).Weight = xlThin
-            
+nexxt:
             k = k + 1
         
         End If
@@ -127,31 +132,19 @@ With Sheet5
     
 skip:
 
-titlestr = " TRAINING REQUIREMENTS FOR PERIOD: " & CStr(.Cells(4, 8)) & " - " & CStr(comparisondate)
-.Cells(1, 1).Value = titlestr
+titlestr = "TRAINING REQUIREMENTS FOR PERIOD: " & CStr(Cells(4, 8).Value) & " - " & CStr(comparisondate)
+Cells(1, 1).Value = titlestr
 
 End With
 
 lastrow = Cells(Rows.Count, 2).End(xlUp).Row
     
-    'sort results by name and by training name
+    'sort results by date of expiry
     Range("B5:E" & lastrow).Select
-    ActiveWorkbook.Worksheets("Training Forecast").Sort.SortFields.Clear
-    ActiveWorkbook.Worksheets("Training Forecast").Sort.SortFields.Add Key:=Range _
-        ("B5:B" & lastrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
-        xlSortNormal
-    ActiveWorkbook.Worksheets("Training Forecast").Sort.SortFields.Add Key:=Range _
-        ("B5:B" & lastrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
-        xlSortNormal
-    With ActiveWorkbook.Worksheets("Training Forecast").Sort
-        .SetRange Range("B5:E" & lastrow)
-        .Header = xlGuess
-        .MatchCase = False
-        .Orientation = xlTopToBottom
-        .SortMethod = xlPinYin
-        .Apply
-    End With
-    Cells(1, 1).Select
+    Selection.Sort Key1:=Range("E5"), Order1:=xlAscending, Header:=xlNo, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortTextAsNumbers
+    Range("A1").Select
     
 finish:
 Application.ScreenUpdating = True
