@@ -1,0 +1,201 @@
+Sub find_vehicles_for_service()
+
+Dim x As Long, y As Long, z As Long, k As Long, lastrow As Long, pmi_row As Long, mot_row As Long, fridge_row As Long, tlift_row As Long, data_column As Long
+Dim start_date As Date, finish_date As Date
+Dim vehs() As Variant
+
+'Reporting tab with expired checks per chosen week
+With Sheet3
+    start_date = CDate(.Cells(132, 6).Value)
+    finish_date = CDate(start_date + 7)
+End With
+
+'Overview tab with all vehicle checks expiry dates
+With Sheet1
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    ReDim vehs(1 To lastrow, 1 To 3) As Variant
+    
+    'vehs array row counter
+    y = 1
+    
+    For x = 3 To lastrow
+    
+        'There are 2 mirror tables with vehicles to collect data from on sheet1
+        
+        'find vehicles with MOT expired in table 1
+        If IsDate(.Cells(x, 8).Value) Then
+            If CDate(.Cells(x, 8).Value) >= start_date And CDate(.Cells(x, 8).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(x, 2).Value
+                vehs(y, 2) = CDate(.Cells(x, 8).Value)
+                vehs(y, 3) = .Cells(2, 8)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with PMI expired in table 1
+        If IsDate(.Cells(x, 10).Value) Then
+            If CDate(.Cells(x, 10).Value) >= start_date And CDate(.Cells(x, 10).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(x, 2).Value
+                vehs(y, 2) = CDate(.Cells(x, 10).Value)
+                vehs(y, 3) = .Cells(2, 10)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with Fridge test expired in table 1
+        If IsDate(.Cells(x, 12).Value) Then
+            If CDate(.Cells(x, 12).Value) >= start_date And CDate(.Cells(x, 12).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(x, 2).Value
+                vehs(y, 2) = CDate(.Cells(x, 12).Value)
+                vehs(y, 3) = .Cells(2, 12)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with Weight test expired in table 1
+        If IsDate(.Cells(x, 13).Value) Then
+            If CDate(.Cells(x, 13).Value) >= start_date And CDate(.Cells(x, 13).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(x, 2).Value
+                vehs(y, 2) = CDate(.Cells(x, 13).Value)
+                vehs(y, 3) = .Cells(2, 13)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with Tail Lift Service expired in table 1
+        If IsDate(.Cells(x, 14).Value) Then
+            If CDate(.Cells(x, 14).Value) >= start_date And CDate(.Cells(x, 14).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(x, 2).Value
+                vehs(y, 2) = CDate(.Cells(x, 14).Value)
+                vehs(y, 3) = .Cells(2, 14)
+                y = y + 1
+        
+            End If
+        End If
+    
+    Next x
+    
+    For z = 3 To lastrow
+    
+        'find vehicles with MOT expired in table 2
+        If IsDate(.Cells(z, 23).Value) Then
+            If CDate(.Cells(z, 23).Value) >= start_date And CDate(.Cells(z, 23).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(x, 2).Value
+                vehs(y, 2) = CDate(.Cells(x, 23).Value)
+                vehs(y, 3) = .Cells(2, 23)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with PMI expired in table 2
+        If IsDate(.Cells(z, 25).Value) Then
+            If CDate(.Cells(z, 25).Value) >= start_date And CDate(.Cells(z, 25).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(z, 17).Value
+                vehs(y, 2) = CDate(.Cells(z, 25).Value)
+                vehs(y, 3) = .Cells(2, 25)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with Fridge test expired in table 2
+        If IsDate(.Cells(z, 27).Value) Then
+            If CDate(.Cells(z, 27).Value) >= start_date And CDate(.Cells(z, 27).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(z, 17).Value
+                vehs(y, 2) = CDate(.Cells(z, 27).Value)
+                vehs(y, 3) = .Cells(2, 27)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with Weight test expired in table 2
+        If IsDate(.Cells(z, 28).Value) Then
+            If CDate(.Cells(z, 28).Value) >= start_date And CDate(.Cells(z, 28).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(z, 17).Value
+                vehs(y, 2) = CDate(.Cells(z, 28).Value)
+                vehs(y, 3) = .Cells(2, 28)
+                y = y + 1
+        
+            End If
+        End If
+        
+        'find vehicles with Tail Lift Service expired in table 2
+        If IsDate(.Cells(z, 29).Value) Then
+            If CDate(.Cells(z, 29).Value) >= start_date And CDate(.Cells(z, 29).Value) <= finish_date Then
+        
+                vehs(y, 1) = .Cells(z, 17).Value
+                vehs(y, 2) = CDate(.Cells(z, 29).Value)
+                vehs(y, 3) = .Cells(2, 29)
+                y = y + 1
+        
+            End If
+        End If
+    
+    Next z
+    
+End With
+
+'Reporting tab with expired checks per chosen week
+With Sheet3
+    'Parameters of the report layout
+    pmi_row = 136
+    mot_row = 158
+    fridge_row = 171
+    tlift_row = 194
+    data_column = 3
+    
+    'Printing data onto the report from vehs array
+    For k = 1 To UBound(vehs, 1)
+    
+        If vehs(k, 3) = "PMI" Then
+        
+            .Cells(pmi_row, data_column).Value = vehs(k, 1)
+            .Cells(pmi_row, data_column + 2).Value = vehs(k, 2)
+            pmi_row = pmi_row + 1
+            
+        ElseIf vehs(k, 3) = "Mot" Then
+                    
+            .Cells(mot_row, data_column).Value = vehs(k, 1)
+            .Cells(mot_row, data_column + 2).Value = vehs(k, 2)
+            mot_row = mot_row + 1
+            
+        ElseIf vehs(k, 3) = "Fridge" Then
+                    
+            .Cells(fridge_row, data_column).Value = vehs(k, 1)
+            .Cells(fridge_row, data_column + 2).Value = vehs(k, 2)
+            fridge_row = fridge_row + 1
+                        
+        ElseIf vehs(k, 3) = "Tail-lift Svs" Then
+                    
+            .Cells(tlift_row, data_column).Value = vehs(k, 1)
+            .Cells(tlift_row, data_column + 2).Value = vehs(k, 2)
+            tlift_row = tlift_row + 1
+                      
+        ElseIf vehs(k, 3) = "Weight Test" Then
+                              
+            .Cells(tlift_row, data_column).Value = vehs(k, 1)
+            .Cells(tlift_row, data_column + 4).Value = vehs(k, 2)
+            tlift_row = tlift_row + 1
+              
+        End If
+    
+    Next k
+
+End With
+
+End Sub
