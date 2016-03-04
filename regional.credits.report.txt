@@ -3,7 +3,10 @@ Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long, j As
 Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
 Dim ztdaarr() As Variant, arrayy() As Variant
 
-If Sheet7.Cells(1, 1).Value = "" Or Sheet6.Cells(1, 1).Value = "" Then
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
+If Sheet7.Cells(1, 1).Value = vbNullString Or Sheet6.Cells(1, 1).Value = vbNullString Then
     MsgBox ("There is no data.")
     Exit Sub
 End If
@@ -23,9 +26,6 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
         .SortMethod = xlPinYin
         .Apply
     End With
-    
-    Application.ScreenUpdating = False
-    Application.Calculation = xlCalculationManual
     
     For x = 1 To lastrow
     
@@ -83,10 +83,10 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
     On Error GoTo nexxt
             
         tempstr = Cells(y, 14).Value
-        Cells(y, 14).Value = Replace(tempstr, "-", "")
+        Cells(y, 14).Value = Replace(tempstr, "-", vbNullString)
                 
         tempstr = Cells(y, 17).Value
-        Cells(y, 17).Value = Replace(tempstr, "-", "")
+        Cells(y, 17).Value = Replace(tempstr, "-", vbNullString)
     
         tempstr = Trim(Cells(y, 12).Value)
         If InStr(tempstr, " ") > 0 Then
@@ -124,6 +124,8 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
         ztdaarr(y, 10) = Cells(y, 19).Value
         
         'fetching chamber number
+        'SUPER SLOW
+        'TO DO: MAKE FASTER !!!!!
 
         For l = 1 To UBound(arrayy, 1)
         
@@ -207,7 +209,7 @@ Dim prod_treshold As Long, route_treshold As Long
 With Sheet6
 
     'exit if there is no data
-    If .Cells(3, 3).Value = "" Then
+    If .Cells(3, 3).Value = vbNullString Then
         MsgBox ("There is no data.")
         Exit Sub
     End If
@@ -249,17 +251,24 @@ End Sub
 Sub per_chamber()
 'LOOKUPS tab, procedure to substitute all formulas to minimise recalc time
 
-Dim x As Long, y As Long, z As Long, lastrow As Long
+Dim x As Long, y As Long, lastrow_sums As Long, lastrow_vl06 As Long, lastrow_ztda As Long
 Dim data_arr() As Variant
 
+'data_arr array row counter
 y = 1
 
 With Sheet3
 
-    lastrow = .Cells(Rows.Count, 10).End(xlUp).Row
-    ReDim data_arr(1 To lastrow, 1 To 8) As Variant
+    'Scoop chamber numbers from the table
+    lastrow_sums = .Cells(Rows.Count, 10).End(xlUp).Row
+    ReDim data_arr(1 To lastrow_sums, 1 To 9) As Variant
+    'Table structure:
+    '(1)chamber / (2)vl06 cases count / (3)ztda error / (4)51-errors / (5)55-errors /
+    '(6)57-errors / (7)value of errors / (8)number of investigations / (9) region
     
-    For x = 1 To lastrow
+    
+    '###########################(1) Chamber
+    For x = 1 To lastrow_sums
     
         If Right(.Cells(x, 10).Value, 2) = "10" Then
             'populate 1st column in the array with chamber numbers
@@ -269,8 +278,60 @@ With Sheet3
         End If
     
     Next x
-
+    y = 1
+    x = 1
+    '###########################(9) Region
+    'Scoop region per chamber for later summaries per region, table next door
+    lastrow_sums = .Cells(Rows.Count, 9).End(xlUp).Row
+    
+    For y = 1 To UBound(data_arr, 1)
+    
+        For x = 1 To lastrow_sums
+            'match first 2 letters in depot and chamber number
+            If Left(.Cells(x, 9).Value, 2) = Left(data_arr(y, 1), 2) Then
+                data_arr(y, 9) = .Cells(x, 8).Value
+            End If
+            
+        Next x
+    
+    Next y
+    x = 1
+    y = 1
+    
 End With
+    
+With Sheet7
+
+    '###########################(2) VL06 case count per chamber
+    'TOO SLOW
+    lastrow_vl06 = .Cells(Rows.Count, 10).End(xlUp).Row
+    
+    For y = 1 To UBound(data_arr, 1)
+    
+        data_arr(y, 2) = Application.WorksheetFunction.SumIf(.Range(.Cells(4, 10), .Cells(lastrow_vl06, 10)), data_arr(y, 1), .Range(.Cells(4, 13), .Cells(lastrow_vl06, 13)))
+    
+    Next y
+    y = 1
+    'TO DO: Clear data in VL06 tab after array has all the data if we dont need it any more
+    
+    
+    
+End With
+
+With Sheet6
+
+    '###########################(3) ZTDA count per chamber
+    
+    lastrow_ztda = .Cells(Rows.Count, 2).End(xlUp).Row
+    
+    For y = 1 To UBound(data_arr, 1)
+    
+        data_arr(y, 3) = Application.WorksheetFunction.SumIf(.Range(.Cells(3, 5), .Cells(lastrow_ztda, 5)), data_arr(y, 1), .Range(.Cells(3, 11), .Cells(lastrow_ztda, 11)))
+    
+    Next y
+    y = 1
+End With
+
 
 
 
