@@ -159,6 +159,21 @@ With Sheet3
     tlift_row = 194
     data_column = 3
     
+    'Clear the report
+    'Clear PMI
+    .Range(.Cells(pmi_row, data_column), .Cells(pmi_row + 19, data_column)).ClearContents
+    .Range(.Cells(pmi_row, data_column + 2), .Cells(pmi_row + 19, data_column + 2)).ClearContents
+    'Clear MOT
+    .Range(.Cells(mot_row, data_column), .Cells(mot_row + 9, data_column)).ClearContents
+    .Range(.Cells(mot_row, data_column + 2), .Cells(mot_row + 9, data_column + 2)).ClearContents
+    'Clear Fridge
+    .Range(.Cells(fridge_row, data_column), .Cells(fridge_row + 19, data_column)).ClearContents
+    .Range(.Cells(fridge_row, data_column + 2), .Cells(fridge_row + 19, data_column + 2)).ClearContents
+    'Clear Tail Lift Serice & Weight Test
+    .Range(.Cells(tlift_row, data_column), .Cells(tlift_row + 19, data_column)).ClearContents
+    .Range(.Cells(tlift_row, data_column + 2), .Cells(tlift_row + 19, data_column + 2)).ClearContents
+    .Range(.Cells(tlift_row, data_column + 4), .Cells(tlift_row + 19, data_column + 4)).ClearContents
+    
     'Printing data onto the report from vehs array
     For k = 1 To UBound(vehs, 1)
     
