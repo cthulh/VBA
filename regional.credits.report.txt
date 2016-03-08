@@ -1,5 +1,5 @@
 Sub main_sub()
-Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, l As Long, j As Long
+Dim lastrow As Long, x As Long, y As Long, z As Long, k As Long, L As Long, j As Long
 Dim accountnum As String, accountdesc As String, codeprod As String, codedesc As String, tempstr As String, resoncode As String, resondesc As String
 Dim ztdaarr() As Variant, arrayy() As Variant
 
@@ -127,15 +127,15 @@ lastrow = Cells(Rows.Count, 1).End(xlUp).Row
         'SUPER SLOW
         'TO DO: MAKE FASTER !!!!!
 
-        For l = 1 To UBound(arrayy, 1)
+        For L = 1 To UBound(arrayy, 1)
         
-            If arrayy(l, 2) = ztdaarr(y, 0) And arrayy(l, 4) = ztdaarr(y, 4) And arrayy(l, 6) = ztdaarr(y, 7) Then
+            If arrayy(L, 2) = ztdaarr(y, 0) And arrayy(L, 4) = ztdaarr(y, 4) And arrayy(L, 6) = ztdaarr(y, 7) Then
             
-                ztdaarr(y, 3) = arrayy(l, 9)
+                ztdaarr(y, 3) = arrayy(L, 9)
                 
             End If
         
-        Next l
+        Next L
         
 nexxt:
     Next y
@@ -251,8 +251,10 @@ End Sub
 Sub per_chamber()
 'LOOKUPS tab, procedure to substitute all formulas to minimise recalc time
 
-Dim x As Long, y As Long, lastrow_sums As Long, lastrow_vl06 As Long, lastrow_ztda As Long
-Dim data_arr() As Variant
+Dim x As Long, y As Long, z As Long, k As Long, lastrow_sums As Long, lastrow_vl06 As Long, lastrow_ztda As Long
+Dim data_arr() As Variant, temp_reg As String, temp_val_vl06 As Long, temp_val_51s As Long, temp_val_55s As Long
+Dim temp_val_57s As Long, temp_val_errval As Long, temp_val_invest As Long, temp_val_ztda As Long
+Dim temp_chamb As String, temp_condi As String
 
 'data_arr array row counter
 y = 1
@@ -352,6 +354,66 @@ With Sheet6
     y = 1
     x = 1
 
+    
+End With
+
+With Sheet3
+
+    lastrow = .Cells(Rows.Count, 11).End(xlUp).Row
+    For y = 1 To UBound(data_arr, 1)
+        For x = 1 To lastrow
+        
+            If .Cells(x, 11).Value = data_arr(y, 1) Then
+                
+                For z = 2 To UBound(data_arr, 2) - 1
+                    If data_arr(y, z) <> Empty Then
+                        .Cells(x, 10 + z).Value = data_arr(y, z)
+                    Else
+                        .Cells(x, 10 + z).Value = 0
+                    End If
+                Next z
+            
+            ElseIf InStr(.Cells(x, 11).Value, " ") > 0 Then
+                
+                If Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1) = "BRAKES" Then
+                    
+                Else
+                    temp_reg = Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1)
+                    temp_chamb = Right(.Cells(x, 11).Value, Len(.Cells(x, 11).Value) - InStr(.Cells(x, 11).Value, " "))
+                    
+                    Select Case temp_chamb
+                        Case "L - Frz"
+                        temp_condi = "1"
+                        Case "R - Frz"
+                        temp_condi = "2"
+                        Case "L - Chill"
+                        temp_condi = "8"
+                        Case "R - Chill"
+                        temp_condi = "C"
+                        Case "L - Amb"
+                        temp_condi = "9"
+                    End Select
+                    
+                    For k = 1 To UBound(data_arr, 1)
+                            If data_arr(k, 9) = temp_reg And Right(data_arr(k, 1), 1) = "1" Then
+                                temp_val_vl06 = temp_val_vl06 + data_arr(k, 2)
+                                temp_val_ztda = temp_val_ztda + data_arr(k, 3)
+                                temp_val_51s = temp_val_51s + data_arr(k, 4)
+                                temp_val_55s = temp_val_55s + data_arr(k, 5)
+                                temp_val_57s = temp_val_57s + data_arr(k, 6)
+                                temp_val_errval = temp_val_errval + data_arr(k, 7)
+                                temp_val_invest = temp_val_invest + data_arr(k, 8)
+                            End If
+                        Next k
+                    k = 1
+                    
+                End If
+                
+            End If
+
+        Next x
+    Next y
+    
     
 End With
 
