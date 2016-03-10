@@ -180,6 +180,7 @@ nexxt:
      
 skip:
     Call investigate
+    Call per_chamber
     
     Application.ScreenUpdating = True
     Application.Calculation = xlAutomatic
@@ -253,8 +254,9 @@ Sub per_chamber()
 
 Dim x As Long, y As Long, z As Long, k As Long, lastrow_sums As Long, lastrow_vl06 As Long, lastrow_ztda As Long
 Dim data_arr() As Variant, temp_reg As String, temp_val_vl06 As Long, temp_val_51s As Long, temp_val_55s As Long
-Dim temp_val_57s As Long, temp_val_errval As Long, temp_val_invest As Long, temp_val_ztda As Long
+Dim temp_val_57s As Long, temp_val_errval As Double, temp_val_invest As Long, temp_val_ztda As Long
 Dim temp_chamb As String, temp_condi As String
+Dim goto_row As Long
 
 'data_arr array row counter
 y = 1
@@ -314,7 +316,9 @@ With Sheet7
         
     Next y
     y = 1
-    'TO DO: Clear data in VL06 tab after array has all the data if we dont need it any more
+    
+    .Cells.ClearContents
+    .Visible = xlSheetHidden
     
 End With
 
@@ -353,71 +357,139 @@ With Sheet6
     Next y
     y = 1
     x = 1
-
     
 End With
 
 With Sheet3
 
     lastrow = .Cells(Rows.Count, 11).End(xlUp).Row
+    
+    'Clear table before printing data in
+    .Range(.Cells(2, 12), .Cells(lastrow, 18)).ClearContents
+    
+    'Print data for each chamber onto the sheet
     For y = 1 To UBound(data_arr, 1)
-        For x = 1 To lastrow
-        
-            If .Cells(x, 11).Value = data_arr(y, 1) Then
-                
+        If data_arr(y, 1) <> Empty Then
+            goto_row = Application.WorksheetFunction.Match(data_arr(y, 1), .Range(.Cells(1, 11), .Cells(lastrow, 11)), 0)
+            If Trim(.Cells(goto_row, 11).Value) = data_arr(y, 1) Then
                 For z = 2 To UBound(data_arr, 2) - 1
                     If data_arr(y, z) <> Empty Then
-                        .Cells(x, 10 + z).Value = data_arr(y, z)
+                        .Cells(goto_row, 10 + z).Value = data_arr(y, z)
                     Else
-                        .Cells(x, 10 + z).Value = 0
+                        .Cells(goto_row, 10 + z).Value = 0
                     End If
                 Next z
-            
-            ElseIf InStr(.Cells(x, 11).Value, " ") > 0 Then
+            End If
+        End If
+    Next y
+    y = 1
+    
+    'Look for regional summaries and calculate
+    For x = 1 To lastrow
+        
+                If InStr(.Cells(x, 11).Value, " ") > 0 Then
                 
-                If Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1) = "BRAKES" Then
+                    If Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1) = "BRAKES" Then
                     
-                Else
-                    temp_reg = Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1)
-                    temp_chamb = Right(.Cells(x, 11).Value, Len(.Cells(x, 11).Value) - InStr(.Cells(x, 11).Value, " "))
+                        temp_reg = Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1)
+                        temp_chamb = Right(.Cells(x, 11).Value, Len(.Cells(x, 11).Value) - InStr(.Cells(x, 11).Value, " "))
                     
-                    Select Case temp_chamb
-                        Case "L - Frz"
-                        temp_condi = "1"
-                        Case "R - Frz"
-                        temp_condi = "2"
-                        Case "L - Chill"
-                        temp_condi = "8"
-                        Case "R - Chill"
-                        temp_condi = "C"
-                        Case "L - Amb"
-                        temp_condi = "9"
-                    End Select
-                    
-                    For k = 1 To UBound(data_arr, 1)
-                            If data_arr(k, 9) = temp_reg And Right(data_arr(k, 1), 1) = "1" Then
-                                temp_val_vl06 = temp_val_vl06 + data_arr(k, 2)
-                                temp_val_ztda = temp_val_ztda + data_arr(k, 3)
-                                temp_val_51s = temp_val_51s + data_arr(k, 4)
-                                temp_val_55s = temp_val_55s + data_arr(k, 5)
-                                temp_val_57s = temp_val_57s + data_arr(k, 6)
-                                temp_val_errval = temp_val_errval + data_arr(k, 7)
-                                temp_val_invest = temp_val_invest + data_arr(k, 8)
+                        Select Case temp_chamb
+                            Case "L - Frz"
+                            temp_condi = "1"
+                            Case "R - Frz"
+                            temp_condi = "2"
+                            Case "L - Chill"
+                            temp_condi = "8"
+                            Case "R - Chill"
+                            temp_condi = "C"
+                            Case "L - Amb"
+                            temp_condi = "9"
+                        End Select
+                        
+                        For k = 1 To UBound(data_arr, 1)
+                            If Right(data_arr(k, 1), 1) = temp_condi Then
+                            temp_val_vl06 = temp_val_vl06 + data_arr(k, 2)
+                            temp_val_ztda = temp_val_ztda + data_arr(k, 3)
+                            temp_val_51s = temp_val_51s + data_arr(k, 4)
+                            temp_val_55s = temp_val_55s + data_arr(k, 5)
+                            temp_val_57s = temp_val_57s + data_arr(k, 6)
+                            temp_val_errval = temp_val_errval + data_arr(k, 7)
+                            temp_val_invest = temp_val_invest + data_arr(k, 8)
                             End If
                         Next k
-                    k = 1
+                        k = 1
                     
-                End If
+                        .Cells(x, 12).Value = temp_val_vl06
+                        .Cells(x, 13).Value = temp_val_ztda
+                        .Cells(x, 14).Value = temp_val_51s
+                        .Cells(x, 15).Value = temp_val_55s
+                        .Cells(x, 16).Value = temp_val_57s
+                        .Cells(x, 17).Value = temp_val_errval
+                        .Cells(x, 18).Value = temp_val_invest
+                    
+                        temp_val_vl06 = 0
+                        temp_val_ztda = 0
+                        temp_val_51s = 0
+                        temp_val_55s = 0
+                        temp_val_57s = 0
+                        temp_val_errval = 0
+                        temp_val_invest = 0
+                    Else
+                    
+                        temp_reg = Left(.Cells(x, 11).Value, InStr(.Cells(x, 11).Value, " ") - 1)
+                        temp_chamb = Right(.Cells(x, 11).Value, Len(.Cells(x, 11).Value) - InStr(.Cells(x, 11).Value, " "))
+                    
+                        Select Case temp_chamb
+                            Case "L - Frz"
+                            temp_condi = "1"
+                            Case "R - Frz"
+                            temp_condi = "2"
+                            Case "L - Chill"
+                            temp_condi = "8"
+                            Case "R - Chill"
+                            temp_condi = "C"
+                            Case "L - Amb"
+                            temp_condi = "9"
+                        End Select
+
+                        For k = 1 To UBound(data_arr, 1)
+                            If data_arr(k, 9) = temp_reg And Right(data_arr(k, 1), 1) = temp_condi Then
+                            temp_val_vl06 = temp_val_vl06 + data_arr(k, 2)
+                            temp_val_ztda = temp_val_ztda + data_arr(k, 3)
+                            temp_val_51s = temp_val_51s + data_arr(k, 4)
+                            temp_val_55s = temp_val_55s + data_arr(k, 5)
+                            temp_val_57s = temp_val_57s + data_arr(k, 6)
+                            temp_val_errval = temp_val_errval + data_arr(k, 7)
+                            temp_val_invest = temp_val_invest + data_arr(k, 8)
+                            End If
+                        Next k
+                        k = 1
+                    
+                        .Cells(x, 12).Value = temp_val_vl06
+                        .Cells(x, 13).Value = temp_val_ztda
+                        .Cells(x, 14).Value = temp_val_51s
+                        .Cells(x, 15).Value = temp_val_55s
+                        .Cells(x, 16).Value = temp_val_57s
+                        .Cells(x, 17).Value = temp_val_errval
+                        .Cells(x, 18).Value = temp_val_invest
+                    
+                        temp_val_vl06 = 0
+                        temp_val_ztda = 0
+                        temp_val_51s = 0
+                        temp_val_55s = 0
+                        temp_val_57s = 0
+                        temp_val_errval = 0
+                        temp_val_invest = 0
+                    
+                    End If
                 
-            End If
+                End If
 
         Next x
-    Next y
-    
+        
+    .Visible = xlSheetHidden
     
 End With
-
-
-
 
 End Sub
