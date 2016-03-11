@@ -6,7 +6,7 @@ Dim ztdaarr() As Variant, arrayy() As Variant
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
 
-If Sheet7.Cells(1, 1).Value = vbNullString Or Sheet6.Cells(1, 1).Value = vbNullString Then
+If Sheet7.Cells(1, 1).Value = vbNullString Or Sheet19.Cells(1, 1).Value = vbNullString Then
     MsgBox ("There is no data.")
     Exit Sub
 End If
@@ -145,8 +145,10 @@ nexxt:
     
     With Sheet6
     
-       lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
-       .Range(.Cells(3, 2), .Cells(lastrow, 17)).ClearContents
+        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+        If lastrow > 3 Then
+            .Range(.Cells(3, 2), .Cells(lastrow, 17)).ClearContents
+        End If
     
         For k = 1 To UBound(ztdaarr, 1)
         
@@ -173,9 +175,9 @@ nexxt:
             End If
         
         Next k
-    
         .Activate
-    
+        Sheet19.Visible = xlSheetHidden
+        
     End With
      
 skip:
@@ -244,6 +246,9 @@ With Sheet6
         End If
     
     Next x
+    
+    Rows("2:2").AutoFilter
+    ActiveSheet.Range("$A$2:$BCY$" & lastrow).AutoFilter Field:=17, Criteria1:="INVESTIGATE"
 
 End With
 
