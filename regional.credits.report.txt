@@ -191,16 +191,27 @@ End Sub
 
 
 Sub text_to_columns()
+
+Dim x As Long
+
+'Count the number of non blank cells in column B
+x = Application.WorksheetFunction.CountA(Range("B:B"))
+
+'If column B is empty, text-to-column A, if it's already done (B contains values) then skip this step
+    If x > 0 Then
+    
     Columns(1).TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, _
         TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
         Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
         :="|", FieldInfo:=Array(Array(1, 1), Array(2, 1), Array(3, 1), Array(4, 1), Array(5, _
         1), Array(6, 1), Array(7, 1), Array(8, 1), Array(9, 1), Array(10, 1), Array(11, 1), Array(12 _
         , 1), Array(13, 1), Array(14, 1)), TrailingMinusNumbers:=True
+       
+        Range("B6").TextToColumns Destination:=Range("B2"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+        Semicolon:=False, Comma:=False, Space:=False, Other:=False
         
-    Range("B6").TextToColumns Destination:=Range("B2"), DataType:=xlDelimited, _
-    TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
-    Semicolon:=False, Comma:=False, Space:=False, Other:=False
+    End If
     
 End Sub
 
