@@ -1,0 +1,165 @@
+Sub forecast()
+
+Dim lastrow As Long, lastcol As Long, x As Long, y As Long, z As Long, j As Long, k As Long, l As Long
+Dim datafrom As Long, expirycriterion As Long
+Dim expiredarr() As Variant
+Dim comparisondate As Date, expirydate As Date, expiryperiod As String
+Dim titlestr As String
+
+With Sheet14
+    If IsDate(.Cells(4, 8)) Then
+        'Setting a date 3 months from the entered date
+        comparisondate = DateAdd("m", 3, .Cells(4, 8))
+    Else
+        ' If the entered date is not a date or not formatted as a date
+        MsgBox ("Invalid date format. Please use format DD/MM/YYY and re run macro.")
+        .Cells(4, 8).Value = ""
+        GoTo finish
+    End If
+End With
+
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+
+With Sheet1
+    'Detecting the structure of the report
+    lastrow = .Cells(.Rows.Count, 1).End(xlUp).Row
+    lastcol = .Cells(3, .Columns.Count).End(xlToLeft).Column
+    datafrom = .Range(.Cells(1, 4), .Cells(20, 4)).Find("Role", LookIn:=xlValues).Row + 1
+    expirycriterion = .Range(.Cells(1, 1), .Cells(5, lastcol)).Find("Once", LookIn:=xlValues).Row
+    
+    'Array with expired trainings
+    ReDim expiredarr(1 To lastrow * lastcol, 1 To 4) As Variant
+    
+    'Array row counter for below loop
+    j = 1
+    
+    For y = 6 To lastcol
+        'If training is done only "Once" skip loop
+        If .Cells(expirycriterion, y).Value <> "Once" And Application.WorksheetFunction.CountIf(.Range(.Cells(1, y), .Cells(20, y)), "_") = 0 Then
+        
+            For x = datafrom To lastrow
+                
+                If IsDate(.Cells(x, y).Value) Then
+                
+                    expiryperiod = .Cells(expirycriterion, y).Value
+    
+                    Select Case expiryperiod
+                    'Check what is the validity period and addid it to the training date
+                    Case "1 Y"
+                    expirydate = DateAdd("yyyy", 1, .Cells(x, y))
+                    Case "2 Y"
+                    expirydate = DateAdd("yyyy", 2, .Cells(x, y))
+                    Case "3 Y"
+                    expirydate = DateAdd("yyyy", 3, .Cells(x, y))
+                    Case "4 Y"
+                    expirydate = DateAdd("yyyy", 4, .Cells(x, y))
+                    Case "5 Y"
+                    expirydate = DateAdd("yyyy", 5, .Cells(x, y))
+                    Case Else
+                    MsgBox ("Expiry criterion not mathcing existing profiles of: 1 Y, 2 Y, 3 Y, 4 Y, 5 Y.")
+                    End Select
+                
+                    If expirydate <= comparisondate Then
+                        'If training is expired add the data to the array
+                        
+                        'Trainee name
+                        expiredarr(j, 1) = .Cells(x, 1).Value
+                        'Role
+                        expiredarr(j, 2) = .Cells(x, 4).Value
+                        'Training name
+                        expiredarr(j, 3) = .Cells(datafrom - 1, y).Value
+                        'Expiry date
+                        expiredarr(j, 4) = DateValue(Month(expirydate) & "/" & Day(expirydate) & "/" & Year(expirydate))
+                        'Above = converting the date from UK format to US format
+                    
+                        j = j + 1
+                
+                    End If
+                
+                End If
+    
+            Next x
+        
+        End If
+
+    Next y
+
+End With
+
+k = 1
+'array row counter for below loop
+
+With Sheet14
+
+    'clear the list and formatting
+    
+    .Range(.Cells(5, 2), .Cells(1000, 5)).Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    Selection.Borders(xlEdgeLeft).LineStyle = xlNone
+    Selection.Borders(xlEdgeTop).LineStyle = xlNone
+    Selection.Borders(xlEdgeBottom).LineStyle = xlNone
+    Selection.Borders(xlEdgeRight).LineStyle = xlNone
+    Selection.Borders(xlInsideVertical).LineStyle = xlNone
+    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
+    Selection.ClearContents
+    .Cells(1, 1).Select
+
+    For z = 5 To UBound(expiredarr, 1)
+    
+        If expiredarr(k, 1) = Empty Then
+        
+            GoTo skip
+            
+        Else
+        
+            .Cells(z, 2).Value = expiredarr(k, 1)
+            .Cells(z, 3).Value = expiredarr(k, 2)
+            .Cells(z, 4).Value = expiredarr(k, 3)
+            .Cells(z, 5).Value = CStr(expiredarr(k, 4))
+            
+            'applying report formating per row of data
+            .Rows(z).RowHeight = 15
+            .Range(.Cells(z, 2), .Cells(z, 5)).HorizontalAlignment = xlCenter
+            .Range(.Cells(z, 2), .Cells(z, 5)).VerticalAlignment = xlCenter
+            .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).LineStyle = xlContinuous
+            .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).ColorIndex = 0
+            .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).TintAndShade = 0
+            .Range(.Cells(z, 2), .Cells(z, 5)).Borders(xlEdgeBottom).Weight = xlThin
+            
+            k = k + 1
+        
+        End If
+    
+    Next z
+    
+skip:
+
+titlestr = " TRAINING REQUIREMENTS FOR PERIOD: " & CStr(.Cells(4, 8)) & " - " & CStr(comparisondate)
+.Cells(1, 1).Value = titlestr
+
+End With
+
+lastrow = Cells(Rows.Count, 2).End(xlUp).Row
+    
+    'sort results by name and by training name
+    Range("B5:E" & lastrow).Select
+    ActiveWorkbook.Worksheets("Training Forecast").sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Training Forecast").sort.SortFields.Add Key:=Range _
+        ("E5"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets("Training Forecast").sort
+        .SetRange Range("B5:E" & lastrow)
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    Cells(1, 1).Select
+    
+finish:
+Application.Calculation = xlCalculationAutomatic
+Application.ScreenUpdating = True
+
+End Sub
