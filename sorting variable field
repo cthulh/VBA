@@ -1,0 +1,20 @@
+Sub sort_by_name()
+
+Dim lastrow As Long, lastcol As Long, freq As Long, datafrom As Long
+
+freq = Range(Cells(1, 1), Cells(5, 20)).Find("Once", LookIn:=xlValues).Row
+datafrom = Range(Cells(1, 1), Cells(5, 20)).Find("Full name", LookIn:=xlValues).Row
+lastrow = Application.WorksheetFunction.Match("X", Range(Cells(1, 1), Cells(1000, 1)), 0) - 1
+lastcol = Cells(freq, Columns.Count).End(xlToLeft).Column
+
+Application.ScreenUpdating = False
+
+    Range(Cells(datafrom, 1), Cells(lastrow, lastcol)).Select
+    Selection.Sort Key1:=Range("A" & datafrom + 1), Order1:=xlAscending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("A1").Select
+    
+Application.ScreenUpdating = True
+    
+End Sub
