@@ -1,0 +1,70 @@
+Sub get_desc()
+
+Dim x As Long, y As Long, lastrow As Long, counter As Long
+Dim desc As String, desc_detect As String
+
+lastrow = Cells(Rows.Count, 1).End(xlUp).Row
+
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+
+For counter = 1 To lastrow
+
+    If InStr(Cells(counter, 6).Value, "var") > 0 Then
+
+        x = InStr(Cells(counter, 6).Value, "in titles & description") + Len("in titles & description")
+        
+        If x = Len("in titles & description") Then
+            x = InStr(Cells(counter, 6).Value, "Size  Approx")
+            If x = 0 Then
+                x = InStr(Cells(counter, 6).Value, "FREE Scrolling Gallery.") + Len("FREE Scrolling Gallery.")
+                y = Len(Cells(counter, 6).Value)
+                GoTo skipper
+            End If
+        End If
+        
+        y = InStr(Cells(counter, 6).Value, "Payment")
+        
+        If y = 0 Then
+            y = InStr(Cells(counter, 6).Value, "All purchases")
+            If y = 0 Then
+                y = InStr(Cells(counter, 6).Value, "Allpurchases")
+            End If
+        End If
+        
+        'In case there was a set layout to be adhered to
+        'If x - Len("in titles & description") > 0 And y > 0 Then
+        '    desc = Mid(Cells(counter, 6).Value, x, y - x)
+        'Else
+        '    desc = "Incompatible page layout"
+        'End If
+skipper:
+        
+        desc = Mid(Cells(counter, 6).Value, x, y - x)
+        desc_detect = Replace(desc, Chr(10), "")
+        desc_detect = Replace(desc_detect, vbTab, "")
+        desc_detect = Trim(Replace(desc_detect, " ", ""))
+        
+        If Len(desc_detect) > 10 Then
+            desc = Replace(desc, Chr(10), " ")
+            desc = Replace(desc, vbTab, " ")
+        Else
+            desc = "No description detected"
+        End If
+        
+        Do While InStr(1, desc, "  ")
+            desc = Replace(desc, "  ", " ")
+        Loop
+           
+        Cells(counter, 15).Value = desc
+
+    End If
+    
+Next counter
+
+Application.ScreenUpdating = True
+Application.Calculation = xlCalculationAutomatic
+
+
+End Sub
+
