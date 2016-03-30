@@ -55,7 +55,7 @@ skipper:
         Do While InStr(1, desc, "  ")
             desc = Replace(desc, "  ", " ")
         Loop
-           
+        'below number 15 corresponds to column "O", change to get results in different column   
         Cells(counter, 15).Value = desc
 
     End If
