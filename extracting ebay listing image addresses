@@ -1,0 +1,65 @@
+Sub get_image_from_ebay_listing()
+' to get data from the url we need to creat a win Http object_
+' tools > references > select Windows Win Http Services 5.1
+
+Dim x As Long, y As Long, lastrow As Long
+Dim url2 As String
+Dim qmark As String: qmark = Chr(34)
+Dim resp As String, parent_listing As String
+Dim http2 As New WinHttpRequest
+Dim image_address As String
+Dim position As Long
+Dim searchterm As String: searchterm = "og:image" & qmark & " content=" & qmark
+
+lastrow = Cells(Rows.Count, 16).End(xlUp).Row
+
+For x = 2 To lastrow
+    'starts from row 2 as row 1 is headers
+    If Cells(x, 16).Value <> "http://www.ebay.co.uk/itm/" Then
+        url2 = Cells(x, 16).Value
+    Else
+        GoTo skipper
+    End If
+    'open the url
+    http2.Open "GET", url2, False
+    ' send request
+    http2.Send
+    resp = http2.ResponseText
+    position = InStr(resp, searchterm) + Len(searchterm)
+    endposition = InStr(position, resp, qmark)
+    image_address = Mid(resp, position, endposition - position)
+skipper:
+    Cells(x, header).Value = image_address
+    
+Next x
+
+End Sub
+
+Sub get_image_from_ebay_listing_convention()
+Dim lastrow As Long, x As Long, item As String, url2 As String, image_address As String, header As Long
+lastrow = Cells(Rows.Count, 16).End(xlUp).Row
+'finds the first column with a header "Image Link", where it's going to input data
+header = Range(Cells(1, 1), Cells(1, 50)).Find("Image Link", LookIn:=xlValues).Column
+
+For x = 2 To lastrow
+    'starts from row 2 as row 1 is headers
+    If Cells(x, 16).Value <> "http://www.ebay.co.uk/itm/" Then
+        url2 = Cells(x, 16).Value
+    Else
+        'if child, skip the process and enter parent's image address
+        GoTo skipper
+    End If
+    'extract item number from the listing address
+    item = Mid(url2, 27, Len(url2) - 26)
+    'enter the item number to naming convention for image addresses,
+    'example: http://i.ebayimg.com/images/i/131735787528-0-1/s-l1000.jpg
+    'where 131735787528 is the item number
+    image_address = "http://i.ebayimg.com/images/i/" & item & "-0-1/s-l1000.jpg"
+    
+skipper:
+    Cells(x, header).Value = image_address
+    
+Next x
+
+
+End Sub
