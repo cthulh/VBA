@@ -1,0 +1,41 @@
+Sub getdata()
+
+Dim fso As Scripting.filesystemobject
+Dim txtfile As Scripting.textstream
+Dim textline As String, dataarray() As String, domain As String, domains As String
+Dim x As Long, rowcounter As Long, arrayrowcounter As Long, colcounter As Long
+
+ReDim dataarray(1 To 10000000) As String
+
+Set fso = New Scripting.filesystemobject
+
+Set txtfile = fso.openTextFile(Filename:="C:\Users\Mariusz\Downloads\USA consumer email database.txt") 'you need to specify the path to the text file within the quote
+x = 1
+arrayrowcounter = 1
+colcounter = 1
+domains = ""
+
+Do Until txtfile.Atendofstream
+    textline = txtfile.readline
+    If InStr(textline, "@") > 0 Then
+        dataarray(x) = textline
+        'domain = Mid(dataarray(x), InStr(dataarray(x), "@"), Len(dataarray(x)) - InStr(dataarray(x), "@"))
+        'If InStr(domains, domain) = 0 Then domains = domains & domain
+        x = x + 1
+    End If
+Loop
+
+With Sheet1
+    For rowcounter = 1 To x
+        If rowcounter = 1 Then
+            .Cells(rowcounter + 1, colcounter).Value = dataarray(arrayrowcounter)
+            domain = Mid(dataarray(arrayrowcounter), InStr(dataarray(arrayrowcounter), "@") + 1, Len(dataarray(arrayrowcounter)) - InStr(dataarray(arrayrowcounter), "@"))
+            arrayrowcounter = arrayrowcounter + 1
+        Else
+            
+        End If
+
+    Next rowcounter
+End With
+
+End Sub
