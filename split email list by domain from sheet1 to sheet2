@@ -1,0 +1,74 @@
+Sub domainseparation()
+Dim x As Long, y As Long, lastrow As Long, rowcount As Long, colcount As Long, lastcol As Long
+Dim emails() As String, domains As String, domain As String
+
+With Sheet1
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+
+    ReDim emails(1 To lastrow) As String
+    rowcounter = 1
+    domains = ""
+
+
+    For x = 1 To lastrow
+
+    If InStr(.Cells(x, 1).Value, "@") > 0 Then
+    
+        emails(rowcounter) = .Cells(x, 1).Value
+        
+        domain = Mid(emails(rowcounter), InStr(emails(rowcounter), "@"), Len(emails(rowcounter)) - InStr(emails(rowcounter), "@") + 1)
+        
+        If InStr(domains, domain) = 0 Then
+            domains = domains & Mid(emails(rowcounter), InStr(emails(rowcounter), "@"), Len(emails(rowcounter)) - InStr(emails(rowcounter), "@") + 1)
+        End If
+        
+        rowcounter = rowcounter + 1
+    
+        End If
+
+    Next x
+
+End With
+colcounter = 1
+With Sheet2
+    .Cells.ClearContents
+    lastrow = 2
+    Do Until domains = ""
+    
+        If InStr(2, domains, "@") = 0 Then
+            domain = domains
+        Else
+            domain = Mid(domains, 1, InStr(2, domains, "@") - 1)
+        End If
+    
+        .Cells(lastrow, colcounter).Value = domain
+        colcounter = colcounter + 1
+        If InStr(2, domains, "@") = 0 Then
+            domains = ""
+        Else
+            domains = Mid(domains, InStr(2, domains, "@"), Len(domains) - InStr(2, domains, "@") + 1)
+        End If
+    
+    Loop
+    
+    lastcol = .Cells(lastrow, Columns.Count).End(xlToLeft).Column
+    
+    colcounter = 1
+    x = 1
+    
+    For colcounter = 1 To lastcol
+    rowcounter = lastrow + 1
+    domain = .Cells(lastrow, colcounter).Value
+        For x = 1 To UBound(emails)
+    
+            If InStr(emails(x), domain) > 0 Then
+                .Cells(rowcounter, colcounter).Value = emails(x)
+                rowcounter = rowcounter + 1
+            End If
+    
+        Next x
+    Next colcounter
+    
+End With
+
+End Sub
