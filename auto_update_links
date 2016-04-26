@@ -1,0 +1,12 @@
+Private Sub Workbook_Open()
+    Application.AskToUpdateLinks = False
+    Call Update_Links
+End Sub
+
+Sub Update_Links()
+
+    On Error Resume Next
+    ActiveWorkbook.UpdateLink Name:=ActiveWorkbook.LinkSources
+    Application.OnTime DateAdd(“s”, 10, Now), “Update_Links”
+
+End Sub
