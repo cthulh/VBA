@@ -1,0 +1,241 @@
+Option Explicit
+
+Sub main_procedure()
+
+Dim splitter() As String
+Dim products(1 To 10000) As Variant, customers(1 To 1000, 1 To 2) As Variant, consolidated_cust(1 To 1000) As Variant
+Dim counter As Long, lastrow As Long, x As Long
+Dim tempval As Variant
+
+' 1. Collect all product codes from sheet 6 extract and write data to sheet 5
+
+With Sheet6
+    ' Collecting all product codes from sheet 6
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    counter = 1
+    ' Data extract starts from row 9
+    For x = 9 To lastrow
+        If Left(.Cells(x, 1).Value, 1) = "-" Then Exit For
+        If Left(.Cells(x, 1).Value, 1) = "|" Then
+            splitter = Split(.Cells(x, 1).Value, "|")
+            If UBound(splitter) = 8 Then
+                ' Product codes are stored in 6th column of a table delimited by a "|"
+                products(counter) = Trim(splitter(6))
+                counter = counter + 1
+            End If
+        End If
+    Next x
+End With
+
+With Sheet5
+    ' Writing all product codes to sheet 5, data entry starts from row 2
+    counter = 2
+    For x = 1 To UBound(products)
+        If Not products(x) = Empty Then
+            .Cells(counter, 3).Value = products(x)
+            .Cells(counter, 2).Value = "CY10"
+            
+' 2. Generate random 3-digit code per product code ["check digit"]
+
+get_another_random:
+            tempval = get_random_cd
+            If Application.CountIf(.Range(.Cells(1, 1), .Cells(counter, 6)), tempval) = 0 Then
+                .Cells(counter, 6).Value = tempval
+            Else
+                GoTo get_another_random
+            End If
+            tempval = ""
+            counter = counter + 1
+        End If
+    Next x
+End With
+
+
+' 3. Collect all customer and quantity data from sheets [2, 3, 4]
+
+With Sheet2
+    ' Collecting all customer data with
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    counter = 1
+    ' Data extract starts from row 9
+    For x = 9 To lastrow
+        If Left(.Cells(x, 1).Value, 1) = "-" Then Exit For
+        If Left(.Cells(x, 1).Value, 1) = "|" Then
+            splitter = Split(.Cells(x, 1).Value, "|")
+            If UBound(splitter) = 11 Then
+                ' Customer codes are stored in 9th column of a table delimited by a "|"
+                customers(counter, 1) = Trim(splitter(9))
+                ' Qtuantities are stored in 10th column
+                customers(counter, 2) = Trim(splitter(10))
+                counter = counter + 1
+            End If
+        End If
+    Next x
+    If Application.CountA(.Range(.Cells(1, 2), .Cells(1000, 2))) = 0 Then
+        .Cells.ClearContents
+        For x = 1 To UBound(customers)
+            .Cells(x, 1).Value = customers(x, 1)
+            .Cells(x, 2).Value = customers(x, 2)
+        Next x
+    End If
+    Erase customers
+End With
+
+With Sheet3
+    ' Collecting all customer data with
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    counter = 1
+    ' Data extract starts from row 9
+    For x = 9 To lastrow
+        If Left(.Cells(x, 1).Value, 1) = "-" Then Exit For
+        If Left(.Cells(x, 1).Value, 1) = "|" Then
+            splitter = Split(.Cells(x, 1).Value, "|")
+            If UBound(splitter) = 11 Then
+                ' Customer codes are stored in 9th column of a table delimited by a "|"
+                customers(counter, 1) = Trim(splitter(9))
+                ' Qtuantities are stored in 10th column
+                customers(counter, 2) = Trim(splitter(10))
+                counter = counter + 1
+            End If
+        End If
+    Next x
+    If Application.CountA(.Range(.Cells(1, 2), .Cells(1000, 2))) = 0 Then
+        .Cells.ClearContents
+        For x = 1 To UBound(customers)
+            .Cells(x, 1).Value = customers(x, 1)
+            .Cells(x, 2).Value = customers(x, 2)
+        Next x
+    End If
+    Erase customers
+End With
+
+With Sheet4
+    ' Collecting all customer data with
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    counter = 1
+    ' Data extract starts from row 9
+    For x = 9 To lastrow
+        If Left(.Cells(x, 1).Value, 1) = "|" Then
+            splitter = Split(.Cells(x, 1).Value, "|")
+            If UBound(splitter) = 15 Then
+                ' Ignore reoccurring column headers
+                If Left(splitter(13), 4) <> "Unit" Then
+                    ' Only process when there is a non-zero qty for ambient for the customer
+                    If CDbl(splitter(13)) > 0 Then
+                        ' Customer codes are stored in 1st column of a table delimited by a "|"
+                        ' Further splitting due to a combined string of "account - customer name"
+                        tempval = Trim(Mid(splitter(1), 1, InStr(splitter(1), "-") - 1))
+                        customers(counter, 1) = tempval
+                        ' Qtuantities are stored in 13th column
+                        customers(counter, 2) = Trim(splitter(13))
+                        counter = counter + 1
+                    End If
+                End If
+            End If
+        End If
+    Next x
+    If Application.CountA(.Range(.Cells(1, 2), .Cells(1000, 2))) = 0 Then
+        .Cells.ClearContents
+        For x = 1 To UBound(customers)
+            .Cells(x, 1).Value = customers(x, 1)
+            .Cells(x, 2).Value = customers(x, 2)
+        Next x
+    End If
+    Erase customers
+End With
+
+Erase splitter
+Erase products
+
+' 4. Write consolidated data per customer to sheet 8
+
+' Collect customer from sheet2
+With Sheet2
+    counter = 1
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    For x = 1 To lastrow
+        consolidated_cust(counter) = .Cells(x, 1).Value
+        counter = counter + 1
+    Next x
+End With
+
+' Collect customer from sheet3
+With Sheet3
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    For x = 1 To lastrow
+        consolidated_cust(counter) = .Cells(x, 1).Value
+        counter = counter + 1
+    Next x
+End With
+
+' Collect customer from sheet4
+With Sheet4
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    For x = 1 To lastrow
+        consolidated_cust(counter) = .Cells(x, 1).Value
+        counter = counter + 1
+    Next x
+End With
+
+' Sort all account numbers ASC
+
+tempval = BubbleSrt(consolidated_cust, True)
+
+' Write all customers unique numbers from sorted array
+With Sheet8
+    .Range(.Cells(4, 1), .Cells(1000, 3)).ClearContents
+    counter = 1
+    ' Report starts from row 3, column 2 is where we want out account numbers printed
+    For x = 1 To UBound(consolidated_cust)
+        If Not tempval(x) = Empty Then
+            If Application.CountIf(.Range(.Cells(4, 2), .Cells(counter + 3, 2)), tempval(x)) = 0 Then
+                .Cells(counter + 3, 2).Value = tempval(x)
+                counter = counter + 1
+            End If
+        End If
+    Next x
+End With
+
+End Sub
+
+
+Public Function get_random_cd() As String
+    get_random_cd = CStr(CInt(9 * Rnd())) & " " & CStr(CInt(9 * Rnd())) & " " & CStr(CInt(9 * Rnd()))
+End Function
+
+
+Public Function BubbleSrt(ArrayIn, Ascending As Boolean)
+' rjwebgraphix, 03/11/2013
+' http://www.mrexcel.com/forum/excel-questions/690718-visual-basic-applications-sort-array-numbers.html
+' True being sort as Ascending. False will sort Decending.
+Dim SrtTemp As Variant
+Dim i As Long
+Dim j As Long
+If Ascending = True Then
+  For i = LBound(ArrayIn) To UBound(ArrayIn)
+    For j = i + 1 To UBound(ArrayIn)
+      If ArrayIn(i) > ArrayIn(j) Then
+        SrtTemp = ArrayIn(j)
+        ArrayIn(j) = ArrayIn(i)
+        ArrayIn(i) = SrtTemp
+      End If
+    Next j
+  Next i
+Else
+  For i = LBound(ArrayIn) To UBound(ArrayIn)
+    For j = i + 1 To UBound(ArrayIn)
+      If ArrayIn(i) < ArrayIn(j) Then
+        SrtTemp = ArrayIn(j)
+        ArrayIn(j) = ArrayIn(i)
+        ArrayIn(i) = SrtTemp
+      End If
+    Next j
+   Next i
+End If
+BubbleSrt = ArrayIn
+End Function
+
+Sub clearall()
+    Cells.ClearContents
+End Sub
+
