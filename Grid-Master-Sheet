@@ -186,13 +186,13 @@ tempval = BubbleSrt(consolidated_cust, True)
 
 ' Write all customers unique numbers from sorted array
 With Sheet8
-    .Range(.Cells(4, 1), .Cells(1000, 3)).ClearContents
+    .Range(.Cells(4, 3), .Cells(1000, 3)).ClearContents
     counter = 1
-    ' Report starts from row 3, column 2 is where we want out account numbers printed
+    ' Report starts from row 4, column 3 is where we want out account numbers printed
     For x = 1 To UBound(consolidated_cust)
         If Not tempval(x) = Empty Then
-            If Application.CountIf(.Range(.Cells(4, 2), .Cells(counter + 3, 2)), tempval(x)) = 0 Then
-                .Cells(counter + 3, 2).Value = tempval(x)
+            If Application.CountIf(.Range(.Cells(4, 3), .Cells(counter + 3, 3)), tempval(x)) = 0 Then
+                .Cells(counter + 3, 3).Value = tempval(x)
                 counter = counter + 1
             End If
         End If
