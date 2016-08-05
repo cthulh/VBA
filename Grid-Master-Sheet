@@ -7,6 +7,9 @@ Dim products(1 To 10000) As Variant, customers(1 To 1000, 1 To 2) As Variant, co
 Dim counter As Long, lastrow As Long, x As Long
 Dim tempval As Variant
 
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+
 ' 1. Collect all product codes from sheet 6 extract and write data to sheet 5
 
 With Sheet6
@@ -196,6 +199,9 @@ With Sheet8
     Next x
 End With
 
+Application.ScreenUpdating = True
+Application.Calculation = xlAutomatic
+
 End Sub
 
 
@@ -239,3 +245,110 @@ Sub clearall()
     Cells.ClearContents
 End Sub
 
+Sub sort_by_route()
+
+Dim lastrow As Long, x As Long
+' Find first non-empty cell in column A
+Application.ScreenUpdating = False
+
+With Sheet8
+
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    
+    Range("A4:B" & lastrow).Select
+    ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Clear
+    ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Add Key:=Range("A4:B" & lastrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets("MASTER SHEET").SORT
+        .SetRange Range("A3:B" & lastrow)
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    Range("A1:K2").Select
+    
+End With
+Application.ScreenUpdating = True
+End Sub
+
+Sub generate_labels()
+
+Dim labels() As Variant
+Dim counter As Long, arr_counter As Long, lastrow As Long, label_count As Integer, label_counter As Integer, x As Long
+
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+
+' 1. Generate a pallet label entry per 75 units
+
+With Sheet8
+    ' Establish doc length
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    ' Set max dimentions of label counts equal to total customers * 5
+    ' 4 columns: ROUTE / ACCOUNT / CUSTOMER
+    ReDim labels(1 To lastrow * 5, 1 To 3) As Variant
+    label_counter = 1
+    ' Report starts from row 4
+    For counter = 4 To lastrow
+        ' Generate a label for each frozen calculated pallet
+        label_count = Round((.Cells(counter, 4).Value + .Cells(counter, 5).Value + .Cells(counter, 6).Value) / 75, 0) + 1
+        For x = 1 To label_count
+            ' ROUTE
+            labels(label_counter, 1) = .Cells(counter, 1).Value
+            ' ACCOUNT
+            labels(label_counter, 2) = .Cells(counter, 2).Value
+            ' CUSTOMER NAME
+            labels(label_counter, 3) = .Cells(counter, 3).Value
+            ' NEXT LABEL NUMBER
+            label_counter = label_counter + 1
+        Next x
+    Next counter
+End With
+
+'2. Print label entries to a list
+
+With Sheet11
+    ' Clear area for new data
+    .Range(.Cells(1, 2), .Cells(1000, 4)).ClearContents
+    
+    For counter = 1 To UBound(labels, 1)
+        If labels(counter, 1) = Empty Then Exit For
+        ' ROUTE
+        .Cells(counter, 2).Value = labels(counter, 1)
+        ' ACCOUNT
+        .Cells(counter, 3).Value = labels(counter, 2)
+        ' CUSTOMER NAME
+        .Cells(counter, 4).Value = labels(counter, 3)
+    Next counter
+    
+End With
+
+Application.ScreenUpdating = True
+Application.Calculation = xlAutomatic
+
+Call print_labels
+
+End Sub
+
+Sub print_labels()
+
+Dim printable_last_row As Long, lastrow As Long
+' 64 rows per label
+printable_last_row = 64
+
+On Error GoTo exiter
+
+With Sheet11
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    printable_last_row = printable_last_row * lastrow
+End With
+
+With Sheet12
+    .PageSetup.PrintArea = "$A$1:$J" & printable_last_row
+    .PrintOut
+End With
+
+exiter:
+
+End Sub
