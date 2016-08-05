@@ -192,7 +192,6 @@ If temp = "FRZ" Then
         Next counter
         ' Clear area for new data
         .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
-        .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
         ' Print all data into second table
         For counter = 1 To UBound(data, 1)
             If data(counter, 1) = Empty Then Exit For
@@ -219,7 +218,6 @@ ElseIf temp = "CA" Then
             End If
         Next counter
         ' Clear area for new data
-        .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
         .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
         ' Print all data into second table
         For counter = 1 To UBound(data, 1)
@@ -614,5 +612,32 @@ Else
     MsgBox "Wrong print selection."
     Exit Sub
 End If
+
+End Sub
+
+Sub clear_all()
+
+' Clear downloaded report
+With Sheet1
+    .Cells.ClearContents
+End With
+
+' Clear customer data
+With Sheet2
+    .Range(.Cells(3, 1), .Cells(501, 2)).ClearContents
+    .Range(.Cells(3, 4), .Cells(501, 6)).ClearContents
+End With
+
+' Clear frozen temp data
+With Sheet4
+    .Range(.Cells(1, 2), .Cells(1000, 5)).ClearContents
+    .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
+End With
+
+' Clear chilled and amb data
+With Sheet8
+    .Range(.Cells(1, 2), .Cells(1000, 5)).ClearContents
+    .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
+End With
 
 End Sub
