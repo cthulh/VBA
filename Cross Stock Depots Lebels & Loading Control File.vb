@@ -249,220 +249,372 @@ End Sub
 
 Sub AL_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "AL"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub AL_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "AL"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub TW_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "TW"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub TW_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "TW"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub WG_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "WG"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub WG_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "WG"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub YT_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "YT"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub YT_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "YT"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub GT_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "GT"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub GT_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "GT"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub PL_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "PL"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub PL_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "PL"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub TF_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "TF"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub TF_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "TF"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub NE_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "NE"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub NE_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "NE"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub DH_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "DH"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub DH_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "DH"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub RG_FRZ()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "RG"
 chamber = "FRZ"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
 
 End Sub
 
 Sub RG_CA()
 
-Dim depot As String, chamber As String
+Dim depot As String, chamber As String, route_range As String
 
 depot = "RG"
 chamber = "CA"
+route_range = "SELECTED"
 
 Call selected_route_range_xdock(depot, chamber)
+Call print_labels(route_range, chamber)
+
+End Sub
+
+Sub ALL_ROUTES_FRZ()
+
+Dim chamber As String, route_range As String
+
+chamber = "FRZ"
+route_range = "ALL"
+
+Call print_labels(route_range, chamber)
+
+End Sub
+
+Sub ALL_ROUTES_CA()
+
+Dim chamber As String, route_range As String
+
+chamber = "CA"
+route_range = "ALL"
+
+Call print_labels(route_range, chamber)
+
+End Sub
+
+Sub print_labels(ByVal selection As String, temp As String)
+
+Dim last_printable_row As Long, lastrow As Long
+
+' Each label is 64 rows long
+last_printable_row = 64
+
+If selection = "ALL" Then
+    If temp = "FRZ" Then
+        
+        With Sheet4
+            ' Find the number of labels
+            lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+            ' Calculate last printable row on labels tab for print area setting
+            last_printable_row = last_printable_row * lastrow
+        End With
+        
+        ' Print all frozen labels
+        With Sheet5
+            ' Set print area
+            .PageSetup.PrintArea = "$A$1:$J$" & last_printable_row
+            ' Print sheet
+            .PrintOut
+        End With
+        
+    ElseIf temp = "CA" Then
+        With Sheet8
+            ' Find the number of labels
+            lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+            ' Calculate last printable row on labels tab for print area setting
+            last_printable_row = last_printable_row * lastrow
+        End With
+        
+        ' Print all chilled & ambient labels
+        With Sheet7
+            ' Set print area
+            .PageSetup.PrintArea = "$A$1:$J$" & last_printable_row
+            ' Print sheet
+            .PrintOut
+        End With
+        
+    Else
+        MsgBox "Wrong temperature selected."
+        Exit Sub
+    End If
+    
+ElseIf selection = "SELECTED" Then
+    If temp = "FRZ" Then
+    
+        With Sheet4
+            ' Find the number of labels
+            lastrow = .Cells(Rows.Count, 7).End(xlUp).Row
+            ' Calculate last printable row on labels tab for print area setting
+            last_printable_row = last_printable_row * lastrow
+        End With
+        
+        With Sheet6
+            ' Set print area
+            .PageSetup.PrintArea = "$A$1:$J$" & last_printable_row
+            ' Print sheet
+            .PrintOut
+        End With
+    
+    ElseIf temp = "CA" Then
+    
+        With Sheet8
+            ' Find the number of labels
+            lastrow = .Cells(Rows.Count, 7).End(xlUp).Row
+            ' Calculate last printable row on labels tab for print area setting
+            last_printable_row = last_printable_row * lastrow
+        End With
+        
+        With Sheet10
+            ' Set print area
+            .PageSetup.PrintArea = "$A$1:$J$" & last_printable_row
+            ' Print sheet
+            .PrintOut
+        End With
+        
+    Else
+        MsgBox "Wrong temperature selected."
+        Exit Sub
+    End If
+Else
+    MsgBox "Wrong print selection."
+    Exit Sub
+End If
 
 End Sub
