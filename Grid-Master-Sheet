@@ -253,20 +253,22 @@ Application.ScreenUpdating = False
 
 With Sheet8
 
-    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
     
-    Range("A4:B" & lastrow).Select
+    .Range("A4:C" & lastrow).Select
     ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Clear
-    ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Add Key:=Range("A4:B" & lastrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Add Key:=Range( _
+        "A4:A" & lastrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortNormal
     With ActiveWorkbook.Worksheets("MASTER SHEET").SORT
-        .SetRange Range("A3:B" & lastrow)
-        .Header = xlYes
+        .SetRange Range("A4:C" & lastrow)
+        .Header = xlGuess
         .MatchCase = False
         .Orientation = xlTopToBottom
         .SortMethod = xlPinYin
         .Apply
     End With
-    Range("A1:K2").Select
+    .Range("A1").Select
     
 End With
 Application.ScreenUpdating = True
@@ -284,7 +286,7 @@ Application.Calculation = xlCalculationManual
 
 With Sheet8
     ' Establish doc length
-    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
     ' Set max dimentions of label counts equal to total customers * 5
     ' 4 columns: ROUTE / ACCOUNT / CUSTOMER
     ReDim labels(1 To lastrow * 5, 1 To 3) As Variant
@@ -292,14 +294,14 @@ With Sheet8
     ' Report starts from row 4
     For counter = 4 To lastrow
         ' Generate a label for each frozen calculated pallet
-        label_count = Round((.Cells(counter, 4).Value + .Cells(counter, 5).Value + .Cells(counter, 6).Value) / 75, 0) + 1
+        label_count = Round((.Cells(counter, 7).Value + .Cells(counter, 5).Value + .Cells(counter, 6).Value) / 75, 0) + 1
         For x = 1 To label_count
             ' ROUTE
             labels(label_counter, 1) = .Cells(counter, 1).Value
             ' ACCOUNT
-            labels(label_counter, 2) = .Cells(counter, 2).Value
+            labels(label_counter, 2) = .Cells(counter, 3).Value
             ' CUSTOMER NAME
-            labels(label_counter, 3) = .Cells(counter, 3).Value
+            labels(label_counter, 3) = .Cells(counter, 4).Value
             ' NEXT LABEL NUMBER
             label_counter = label_counter + 1
         Next x
@@ -310,7 +312,7 @@ End With
 
 With Sheet11
     ' Clear area for new data
-    .Range(.Cells(1, 2), .Cells(1000, 4)).ClearContents
+    .Range(.Cells(1, 2), .Cells(1000, 5)).ClearContents
     
     For counter = 1 To UBound(labels, 1)
         If labels(counter, 1) = Empty Then Exit For
@@ -327,6 +329,8 @@ End With
 Application.ScreenUpdating = True
 Application.Calculation = xlAutomatic
 
+Call generate_random_pallet_tags
+Call insert_page_breaks
 Call print_labels
 
 End Sub
@@ -350,5 +354,54 @@ With Sheet12
 End With
 
 exiter:
+
+End Sub
+
+Sub generate_random_pallet_tags()
+
+Dim rowcounter As Long, lastrow As Long, counter As Long, tempval As Variant
+
+With Sheet11
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    For counter = 1 To lastrow
+        If counter = 1 Then
+            .Cells(counter, 5).Value = get_random_cd
+        Else
+            ' Generate random 3-digit pallet tag
+get_another_random:
+            tempval = get_random_cd
+            If Application.CountIf(.Range(.Cells(1, 5), .Cells(counter, 5)), tempval) = 0 Then
+                .Cells(counter, 5).Value = tempval
+            Else
+                GoTo get_another_random
+            End If
+            tempval = ""
+        End If
+    Next counter
+End With
+
+End Sub
+
+Sub insert_page_breaks()
+
+Dim lastrow As Long, tempval As Variant, counter As Long
+
+With Sheet8
+    lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
+    ' Report starts from row 4, slip first row
+    .ResetAllPageBreaks
+    For counter = 5 To lastrow
+        If Left(.Cells(counter, 1).Value, 2) = Left(.Cells(counter - 1, 1).Value, 2) Then
+            If Left(.Cells(counter, 1).Value, 2) = "RG" Then
+                If .Cells(counter, 1).Value <> .Cells(counter - 1, 1).Value Then
+                    .Rows(counter).PageBreak = xlPageBreakManual
+                End If
+            End If
+        Else
+            .Rows(counter).PageBreak = xlPageBreakManual
+        End If
+    Next counter
+    .PageSetup.PrintArea = "$a$1:$R" & lastrow
+End With
 
 End Sub
