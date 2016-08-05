@@ -159,3 +159,310 @@ Erase f_labels
 Application.ScreenUpdating = True
 Application.Calculation = xlAutomatic
 End Sub
+
+Sub test_print_area()
+
+Worksheets("Sheet1").PageSetup.PrintArea = "$A$1:$C$5"
+
+End Sub
+
+Sub selected_route_range_xdock(ByVal depot As String, ByVal temp As String)
+
+Dim counter As Long, lastrow As Long, arr_counter As Long
+Dim data() As Variant
+
+arr_counter = 1
+
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+
+If temp = "FRZ" Then
+    With Sheet4
+        ' Establish row number of the last entry
+        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+        ' Set max dimentions for data array lastrow x 4
+        ReDim data(1 To lastrow, 1 To 4) As Variant
+        'Collect all customer data matching passed in depot
+        For counter = 1 To lastrow
+            If Left(.Cells(counter, 2).Value, 2) = depot Then
+                data(arr_counter, 1) = .Cells(counter, 2).Value
+                data(arr_counter, 2) = .Cells(counter, 3).Value
+                data(arr_counter, 3) = .Cells(counter, 4).Value
+                data(arr_counter, 4) = .Cells(counter, 5).Value
+                arr_counter = arr_counter + 1
+            End If
+        Next counter
+        ' Clear area for new data
+        .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
+        .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
+        ' Print all data into second table
+        For counter = 1 To UBound(data, 1)
+            If data(counter, 1) = Empty Then Exit For
+            .Cells(counter, 7).Value = data(counter, 1)
+            .Cells(counter, 8).Value = data(counter, 2)
+            .Cells(counter, 9).Value = data(counter, 3)
+            .Cells(counter, 10).Value = data(counter, 4)
+        Next counter
+    End With
+ElseIf temp = "CA" Then
+    With Sheet8
+        ' Establish row number of the last entry
+        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+        ' Set max dimentions for data array lastrow x 4
+        ReDim data(1 To lastrow, 1 To 4) As Variant
+        'Collect all customer data matching passed in depot
+        For counter = 1 To lastrow
+            If Left(.Cells(counter, 2).Value, 2) = depot Then
+                data(arr_counter, 1) = .Cells(counter, 2).Value
+                data(arr_counter, 2) = .Cells(counter, 3).Value
+                data(arr_counter, 3) = .Cells(counter, 4).Value
+                data(arr_counter, 4) = .Cells(counter, 5).Value
+                arr_counter = arr_counter + 1
+            End If
+        Next counter
+        ' Clear area for new data
+        .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
+        .Range(.Cells(1, 7), .Cells(1000, 10)).ClearContents
+        ' Print all data into second table
+        For counter = 1 To UBound(data, 1)
+            If data(counter, 1) = Empty Then Exit For
+            .Cells(counter, 7).Value = data(counter, 1)
+            .Cells(counter, 8).Value = data(counter, 2)
+            .Cells(counter, 9).Value = data(counter, 3)
+            .Cells(counter, 10).Value = data(counter, 4)
+        Next counter
+    End With
+Else
+    ' If wrong temp selected
+    MsgBox "Wrong temperature selected."
+    Exit Sub
+End If
+
+
+Application.ScreenUpdating = True
+Application.Calculation = xlAutomatic
+
+' Grabage clearout
+Erase data
+
+End Sub
+
+Sub AL_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "AL"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub AL_CA()
+
+Dim depot As String, chamber As String
+
+depot = "AL"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub TW_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "TW"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub TW_CA()
+
+Dim depot As String, chamber As String
+
+depot = "TW"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub WG_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "WG"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub WG_CA()
+
+Dim depot As String, chamber As String
+
+depot = "WG"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub YT_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "YT"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub YT_CA()
+
+Dim depot As String, chamber As String
+
+depot = "YT"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub GT_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "GT"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub GT_CA()
+
+Dim depot As String, chamber As String
+
+depot = "GT"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub PL_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "PL"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub PL_CA()
+
+Dim depot As String, chamber As String
+
+depot = "PL"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub TF_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "TF"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub TF_CA()
+
+Dim depot As String, chamber As String
+
+depot = "TF"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub NE_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "NE"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub NE_CA()
+
+Dim depot As String, chamber As String
+
+depot = "NE"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub DH_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "DH"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub DH_CA()
+
+Dim depot As String, chamber As String
+
+depot = "DH"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub RG_FRZ()
+
+Dim depot As String, chamber As String
+
+depot = "RG"
+chamber = "FRZ"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
+
+Sub RG_CA()
+
+Dim depot As String, chamber As String
+
+depot = "RG"
+chamber = "CA"
+
+Call selected_route_range_xdock(depot, chamber)
+
+End Sub
