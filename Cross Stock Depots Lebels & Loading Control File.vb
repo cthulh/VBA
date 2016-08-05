@@ -18,19 +18,17 @@ With Sheet1
     arr_counter = 1
     'Iterate through data, report starts from row 8
     For counter = 8 To lastrow
-        If Left(.Cells(counter, 1).Value, 2) = "RG" Then
-            ' Route number
-            customers(arr_counter, 1) = .Cells(counter, 1).Value
-            ' Drop number
-            customers(arr_counter, 2) = .Cells(counter, 3).Value
-            ' Customer name
-            customers(arr_counter, 3) = .Cells(counter, 10).Value
-            ' Frozen volume
-            customers(arr_counter, 4) = .Cells(counter, 17).Value
-            ' Chilled and ambient volume
-            customers(arr_counter, 5) = .Cells(counter, 20).Value
-            arr_counter = arr_counter + 1
-        End If
+        ' Route number
+        customers(arr_counter, 1) = .Cells(counter, 1).Value
+        ' Drop number
+        customers(arr_counter, 2) = .Cells(counter, 3).Value
+        ' Customer name
+        customers(arr_counter, 3) = .Cells(counter, 10).Value
+        ' Frozen volume
+        customers(arr_counter, 4) = .Cells(counter, 17).Value
+        ' Chilled and ambient volume
+        customers(arr_counter, 5) = .Cells(counter, 20).Value
+        arr_counter = arr_counter + 1
     Next counter
 End With
 
