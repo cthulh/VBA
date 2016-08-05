@@ -3,7 +3,7 @@ Option Explicit
 Sub main_procedure()
 
 Dim customers() As Variant
-Dim counter As Long, arr_counter As Long, lastrow As Long
+Dim counter As Long, arr_counter As Long, lastrow As Long, report_start As Long
 
 Application.ScreenUpdating = False
 Application.Calculation = xlCalculationManual
@@ -12,12 +12,13 @@ Application.Calculation = xlCalculationManual
 With Sheet1
     ' Establish doc length
     lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    report_start = .Range(.Cells(1, 1), .Cells(lastrow, 1)).Find("Summary", LookIn:=xlValues).Row + 1
     ' Dimention the customer array to rows = lastrow, columns = 5
     ' Columns: ROUTE / DROP / CUSTOMER / FROZEN VOL / CHILL & AMB VOL
     ReDim customers(1 To lastrow, 1 To 5) As Variant
     arr_counter = 1
     'Iterate through data, report starts from row 8
-    For counter = 8 To lastrow
+    For counter = report_start To lastrow
         ' Route number
         customers(arr_counter, 1) = .Cells(counter, 1).Value
         ' Drop number
