@@ -53,7 +53,6 @@ get_another_random:
     Next x
 End With
 
-
 ' 3. Collect all customer and quantity data from sheets [2, 3, 4]
 
 With Sheet2
@@ -187,8 +186,9 @@ tempval = BubbleSrt(consolidated_cust, True)
 ' Write all customers unique numbers from sorted array
 With Sheet8
     .Range(.Cells(4, 3), .Cells(1000, 3)).ClearContents
+    .Range(.Cells(4, 14), .Cells(1000, 18)).ClearContents
     counter = 1
-    ' Report starts from row 4, column 3 is where we want out account numbers printed
+    ' Report starts from row 3, column 2 is where we want out account numbers printed
     For x = 1 To UBound(consolidated_cust)
         If Not tempval(x) = Empty Then
             If Application.CountIf(.Range(.Cells(4, 3), .Cells(counter + 3, 3)), tempval(x)) = 0 Then
@@ -203,7 +203,6 @@ Application.ScreenUpdating = True
 Application.Calculation = xlAutomatic
 
 End Sub
-
 
 Public Function get_random_cd() As String
     get_random_cd = CStr(CInt(9 * Rnd())) & " " & CStr(CInt(9 * Rnd())) & " " & CStr(CInt(9 * Rnd()))
@@ -269,9 +268,10 @@ With Sheet8
         .Apply
     End With
     .Range("A1").Select
-    
 End With
+
 Application.ScreenUpdating = True
+
 End Sub
 
 Sub generate_labels()
@@ -330,7 +330,8 @@ Application.ScreenUpdating = True
 Application.Calculation = xlAutomatic
 
 Call generate_random_pallet_tags
-Call insert_page_breaks
+Call load_pallet_tags
+Call insert_page_breaks_and_print
 Call print_labels
 
 End Sub
@@ -341,8 +342,6 @@ Dim printable_last_row As Long, lastrow As Long
 ' 64 rows per label
 printable_last_row = 64
 
-On Error GoTo exiter
-
 With Sheet11
     lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
     printable_last_row = printable_last_row * lastrow
@@ -352,8 +351,6 @@ With Sheet12
     .PageSetup.PrintArea = "$A$1:$J" & printable_last_row
     .PrintOut
 End With
-
-exiter:
 
 End Sub
 
@@ -382,7 +379,7 @@ End With
 
 End Sub
 
-Sub insert_page_breaks()
+Sub insert_page_breaks_and_print()
 
 Dim lastrow As Long, tempval As Variant, counter As Long
 
@@ -390,6 +387,7 @@ With Sheet8
     lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
     ' Report starts from row 4, slip first row
     .ResetAllPageBreaks
+    .PageSetup.PrintArea = ""
     For counter = 5 To lastrow
         If Left(.Cells(counter, 1).Value, 2) = Left(.Cells(counter - 1, 1).Value, 2) Then
             If Left(.Cells(counter, 1).Value, 2) = "RG" Then
@@ -402,6 +400,115 @@ With Sheet8
         End If
     Next counter
     .PageSetup.PrintArea = "$a$1:$R" & lastrow
+    .PrintOut
+End With
+
+End Sub
+
+Sub clear_master()
+
+With Sheet8
+    .Range(.Cells(4, 3), .Cells(10000, 3)).ClearContents
+    .Range(.Cells(4, 14), .Cells(1000, 18)).ClearContents
+    .ResetAllPageBreaks
+    .PageSetup.PrintArea = ""
+End With
+
+With Sheet11
+    .Range(.Cells(1, 2), .Cells(10000, 5)).ClearContents
+End With
+
+End Sub
+
+Sub print_grid_labels()
+
+Dim lastrow As Long, printable_last_row As Long
+
+With Sheet5
+    ' Labels consists of 39 rows
+    printable_last_row = 39
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    printable_last_row = printable_last_row * lastrow
+End With
+
+With Sheet9
+    .PageSetup.PrintArea = "$A$1:$K" & printable_last_row
+    .PrintOut
+End With
+
+End Sub
+
+Sub ClearTextToColumns()
+'Source: http://spreadsheetpage.com/index.php/tip/clearing_the_text_to_columns_parameters/
+    On Error Resume Next
+    If IsEmpty(Range("A1")) Then Range("A1") = "XYZZY"
+    Range("A1").TextToColumns Destination:=Range("A1"), _
+        DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, _
+        ConsecutiveDelimiter:=False, _
+        Tab:=False, _
+        Semicolon:=False, _
+        Comma:=False, _
+        Space:=False, _
+        Other:=False, _
+        OtherChar:=""
+    If Range("A1") = "XYZZY" Then Range("A1") = ""
+    If Err.Number <> 0 Then MsgBox Err.Description
+End Sub
+
+Sub load_pallet_tags()
+
+Dim p_tags() As Variant
+Dim counter As Long, arr_col As Long, arr_row As Long, lastrow As Long
+
+' 1. Collect pallet tags per customer
+With Sheet11
+    lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+    ' Redimention table to (lastrow + 1) x 10, even tough we are only using 5 pallet tags atm
+    ReDim p_tags(1 To lastrow + 1, 1 To 10)
+    arr_row = 1
+    ' Default column for pallet tags = 2 ( 1 = cust name)
+    arr_col = 2
+    For counter = 1 To lastrow
+        If counter = 1 Then
+            ' Customer account number
+            p_tags(arr_row, 1) = .Cells(counter, 3).Value
+            ' Pallet tag
+            p_tags(arr_row, arr_col) = .Cells(counter, 5).Value
+            
+        Else
+            ' If it's second entry for the same account, collect their second tag in the same row in p_tags array
+            If .Cells(counter, 3).Value = .Cells(counter - 1, 3).Value Then
+                arr_col = arr_col + 1
+                p_tags(arr_row, arr_col) = .Cells(counter, 5).Value
+            ' If it's a new account, go down 1 row in the array and collect new customer pallet tag
+            Else
+                arr_row = arr_row + 1
+                ' Pallet tag column defaults back to 2
+                arr_col = 2
+                ' Customer account number
+                p_tags(arr_row, 1) = .Cells(counter, 3).Value
+                ' Pallet tag
+                p_tags(arr_row, arr_col) = .Cells(counter, 5).Value
+            End If
+        End If
+    Next counter
+End With
+
+' 2. Write pallet tags onto Master Sheet
+
+With Sheet8
+    lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
+    For counter = 1 To lastrow
+        For arr_row = 1 To UBound(p_tags, 1)
+            If .Cells(counter, 3).Value = p_tags(arr_row, 1) Then
+                For arr_col = 2 To 6
+                    .Cells(counter, 12 + arr_col).Value = p_tags(arr_row, arr_col)
+                Next arr_col
+                Exit For
+            End If
+        Next arr_row
+    Next counter
 End With
 
 End Sub
