@@ -199,6 +199,8 @@ With Sheet8
     Next x
 End With
 
+Call sort_by_route
+Sheet5.Activate
 Application.ScreenUpdating = True
 Application.Calculation = xlAutomatic
 
@@ -248,19 +250,19 @@ Sub sort_by_route()
 
 Dim lastrow As Long, x As Long
 ' Find first non-empty cell in column A
-Application.ScreenUpdating = False
 
 With Sheet8
 
     lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
-    
-    .Range("A4:C" & lastrow).Select
+    If lastrow = 3 Then Exit Sub
+    .Activate
+    .Range("A4:R" & lastrow).Select
     ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Clear
     ActiveWorkbook.Worksheets("MASTER SHEET").SORT.SortFields.Add Key:=Range( _
         "A4:A" & lastrow), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
         xlSortNormal
     With ActiveWorkbook.Worksheets("MASTER SHEET").SORT
-        .SetRange Range("A4:C" & lastrow)
+        .SetRange Range("A4:R" & lastrow)
         .Header = xlGuess
         .MatchCase = False
         .Orientation = xlTopToBottom
@@ -270,8 +272,6 @@ With Sheet8
     .Range("A1").Select
 End With
 
-Application.ScreenUpdating = True
-
 End Sub
 
 Sub generate_labels()
@@ -280,7 +280,7 @@ Dim labels() As Variant
 Dim counter As Long, arr_counter As Long, lastrow As Long, label_count As Integer, label_counter As Integer, x As Long
 
 Application.ScreenUpdating = False
-Application.Calculation = xlCalculationManual
+Application.Calculation = xlManual
 
 ' 1. Generate a pallet label entry per 75 units
 
@@ -326,13 +326,11 @@ With Sheet11
     
 End With
 
-Application.ScreenUpdating = True
-Application.Calculation = xlAutomatic
-
 Call generate_random_pallet_tags
 Call load_pallet_tags
-Call insert_page_breaks_and_print
-Call print_labels
+
+Application.ScreenUpdating = True
+Application.Calculation = xlAutomatic
 
 End Sub
 
@@ -341,7 +339,7 @@ Sub print_labels()
 Dim printable_last_row As Long, lastrow As Long
 ' 64 rows per label
 printable_last_row = 64
-
+On Error GoTo exiter
 With Sheet11
     lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
     printable_last_row = printable_last_row * lastrow
@@ -351,6 +349,7 @@ With Sheet12
     .PageSetup.PrintArea = "$A$1:$J" & printable_last_row
     .PrintOut
 End With
+exiter:
 
 End Sub
 
@@ -382,7 +381,7 @@ End Sub
 Sub insert_page_breaks_and_print()
 
 Dim lastrow As Long, tempval As Variant, counter As Long
-
+On Error GoTo exiter
 With Sheet8
     lastrow = .Cells(Rows.Count, 3).End(xlUp).Row
     ' Report starts from row 4, slip first row
@@ -402,6 +401,7 @@ With Sheet8
     .PageSetup.PrintArea = "$a$1:$R" & lastrow
     .PrintOut
 End With
+exiter:
 
 End Sub
 
@@ -423,7 +423,7 @@ End Sub
 Sub print_grid_labels()
 
 Dim lastrow As Long, printable_last_row As Long
-
+On Error GoTo exiter
 With Sheet5
     ' Labels consists of 39 rows
     printable_last_row = 39
@@ -435,6 +435,7 @@ With Sheet9
     .PageSetup.PrintArea = "$A$1:$K" & printable_last_row
     .PrintOut
 End With
+exiter:
 
 End Sub
 
@@ -510,5 +511,12 @@ With Sheet8
         Next arr_row
     Next counter
 End With
+
+End Sub
+
+Sub print_labels_and_master_sheet()
+
+Call insert_page_breaks_and_print
+Call print_labels
 
 End Sub
