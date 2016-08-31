@@ -276,8 +276,10 @@ With Sheet6
             Case 9002
             pickerarr(counter2, 2) = "Local TRG Ambient"
             End Select
-        
+            ' Total time picked (without downtime)
             pickerarr(counter2, 3) = Round(CInt(Left(.Cells(y, 3).Value, 3)) + Round((CInt(Left(Right(.Cells(y, 3).Value, 5), 2)) / 60) + Round(CInt(Right(.Cells(y, 3).Value, 2)) / 3600, 2), 2), 2)
+            '+ downtime
+            'pickerarr(counter2, 3) = Round(CInt(Left(.Cells(y, 13).Value, 3)) + Round((CInt(Left(Right(.Cells(y, 13).Value, 5), 2)) / 60) + Round(CInt(Right(.Cells(y, 13).Value, 2)) / 3600, 2), 2), 2)
             ' Total cases picked
             pickerarr(counter2, 4) = .Cells(y, 7).Value
             counter2 = counter2 + 1
@@ -341,4 +343,419 @@ Next q
 
 Erase pickerarr
 
+End Sub
+
+Sub the_great_finder(ByVal name As String, whenpicked As String, wherepicked As String, howlong As Double, howmuch As Long)
+
+'test run data
+'name = "Bennett Sam"
+'wherepicked = "Local Core Chill"
+'whenpicked = "SUNDAY"
+'howlong = 3.51
+'howmuch = 939
+
+Dim tempvalue As Long
+Dim columncounter As Long
+Dim x As Long, y As Long, z As Long, counter1 As Long
+Dim rowtargeter1 As Range, rowtargeter2 As Range, coltargeter As Range
+Dim lastrow As Long
+Dim tempdouble As Double
+
+With Sheet1
+
+        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+        
+        If name = "Smoulch Leslek" Then
+        name = "Smoluch Leszek"
+        End If
+        
+                
+        If name = "Coctinho Nelson" Then
+        name = "Coutinho Nelson"
+        End If
+        
+        If name = "Lewandowski Kristof" Then
+        name = "Lewandowski Krzysztof"
+        End If
+        
+        If name = "Bodyova Veronika" Then
+        name = "Body Veronica"
+        End If
+        
+        
+        Set rowtargeter1 = .Range(.Cells(1, 1), .Cells(lastrow, 1)).Find(name, LookIn:=xlValues, lookat:=xlWhole)
+        
+        'in case the name is not on the sheet
+            If rowtargeter1 Is Nothing Then
+            MsgBox "Picker's name " + name + " could not be recognised."
+            usf_main.tb_picker.Value = ""
+            Exit Sub
+            End If
+        
+        tempvalue = rowtargeter1.Row
+        
+        counter1 = 1
+        
+        'in case of end of the list of names in column A (there won't be more than a 100 pick types I don't think)
+        Do Until rowtargeter1.Offset(1, 0).Value <> rowtargeter1.Value Or counter1 > 11
+            counter1 = counter1 + 1
+            Set rowtargeter1 = rowtargeter1.Offset(1, 0)
+        Loop
+        
+        Set rowtargeter2 = .Range(.Cells(tempvalue, 2), .Cells(tempvalue - 1 + counter1, 2)).Find(wherepicked, LookIn:=xlValues, lookat:=xlWhole)
+        
+        'in case pick type was altered
+            If rowtargeter2 Is Nothing Then
+            MsgBox "Pick type was not recognised."
+            usf_main.cmb_picktype.Value = ""
+            Exit Sub
+            End If
+            
+        x = rowtargeter2.Row
+
+        Set coltargeter = .Range(.Cells(1, 1), .Cells(1, 100)).Find(whenpicked, LookIn:=xlValues, lookat:=xlPart)
+        
+        'in case of mistyped day of the week
+            If coltargeter Is Nothing Then
+            MsgBox "Day of the week could not be recognised."
+            usf_main.cmb_weekday = ""
+            Exit Sub
+            End If
+            
+        columncounter = coltargeter.Column - 1
+        tempdouble = howmuch / howlong
+        .Cells(x, columncounter).Offset(0, 1).Value = howmuch
+        .Cells(x, columncounter).Offset(0, 1).NumberFormat = "0"
+        .Cells(x, columncounter).Offset(0, 2).Value = howlong
+        .Cells(x, columncounter).Offset(0, 2).NumberFormat = "0.00"
+        .Cells(x, columncounter).Offset(0, 3).Value = tempdouble
+        .Cells(x, columncounter).Offset(0, 3).NumberFormat = "0.00"
+        .Cells(x, columncounter).Offset(0, 4).Value = prod(tempdouble, wherepicked)
+        .Cells(x, columncounter).Offset(0, 4).NumberFormat = "0.00%"
+        
+        If .Cells(x, columncounter).Offset(0, 5).Value = "" Then
+        .Cells(x, columncounter).Offset(0, 5).Value = 0
+        .Cells(x, columncounter).Offset(0, 6).Value = 1
+        .Cells(x, columncounter).Offset(0, 6).NumberFormat = "0.00%"
+        Else
+        tempdouble = (howmuch - .Cells(x, columncounter).Offset(0, 5).Value) / howmuch
+        tempdouble = Round(tempdouble, 2)
+        .Cells(x, columncounter).Offset(0, 6).Value = tempdouble
+        .Cells(x, columncounter).Offset(0, 6).NumberFormat = "0.00%"
+        End If
+        
+End With
+
+Set rowtargeter1 = Nothing
+Set rowtargeter2 = Nothing
+
+
+End Sub
+
+Sub the_error_finder(ByVal name As String, whenpicked As String, wherepicked As String, howmuch As Long)
+
+'test run data
+'name = "Bennett Sam"
+'wherepicked = "Local Core Chill"
+'whenpicked = "SUNDAY"
+'howmuch = 9
+
+Dim tempvalue As Long
+Dim columncounter As Long
+Dim x As Long, y As Long, z As Long, counter1 As Long
+Dim rowtargeter1 As Range, rowtargeter2 As Range, coltargeter As Range
+Dim lastrow As Long
+Dim tempdouble As Double
+
+With Sheet1
+
+        lastrow = .Cells(Rows.Count, 2).End(xlUp).Row
+        
+        Set rowtargeter1 = .Range(.Cells(1, 1), .Cells(lastrow, 1)).Find(name, LookIn:=xlValues, lookat:=xlWhole)
+        
+        'in case the name is not on the sheet
+            If rowtargeter1 Is Nothing Then
+            MsgBox "Picker's name " + name + " could not be recognised."
+            usf_main.tb_picker.Value = ""
+            Exit Sub
+            End If
+        
+        tempvalue = rowtargeter1.Row
+        
+        counter1 = 1
+        
+        'in case of end of the list of names in column A (there won't be more than a 100 pick types I don't think)
+        Do Until rowtargeter1.Offset(1, 0).Value <> rowtargeter1.Value Or counter1 > 11
+            counter1 = counter1 + 1
+            Set rowtargeter1 = rowtargeter1.Offset(1, 0)
+        Loop
+        
+        Set rowtargeter2 = .Range(.Cells(tempvalue, 2), .Cells(tempvalue - 1 + counter1, 2)).Find(wherepicked, LookIn:=xlValues, lookat:=xlWhole)
+        
+        'in case pick type was altered
+            If rowtargeter2 Is Nothing Then
+            MsgBox "Pick type was not recognised."
+            usf_main.cmb_picktype.Value = ""
+            Exit Sub
+            End If
+            
+        x = rowtargeter2.Row
+
+        Set coltargeter = .Range(.Cells(1, 1), .Cells(1, 100)).Find(whenpicked, LookIn:=xlValues, lookat:=xlPart)
+        
+        'in case of mistyped day of the week
+            If coltargeter Is Nothing Then
+            MsgBox "Day of the week could not be recognised."
+            usf_main.cmb_weekday = ""
+            Exit Sub
+            End If
+            
+        columncounter = coltargeter.Column - 1
+       
+        .Cells(x, columncounter).Offset(0, 5).Value = howmuch
+        
+        If .Cells(x, columncounter).Offset(0, 1).Value = "" Or .Cells(x, columncounter).Offset(0, 1).Value = 0 Then
+        .Cells(x, columncounter).Offset(0, 6).Value = ""
+        .Cells(x, columncounter).Offset(0, 6).NumberFormat = "0.00%"
+        Else
+        tempdouble = (.Cells(x, columncounter).Offset(0, 1).Value - howmuch) / .Cells(x, columncounter).Offset(0, 1).Value
+        tempdouble = Round(tempdouble, 2)
+        .Cells(x, columncounter).Offset(0, 6).Value = tempdouble
+        .Cells(x, columncounter).Offset(0, 6).NumberFormat = "0.00%"
+        End If
+               
+End With
+
+Set rowtargeter1 = Nothing
+Set rowtargeter2 = Nothing
+
+
+End Sub
+
+Public Function ifNumeric(passedvalue) As Boolean
+
+Dim tempholder As Variant
+Dim nonumbersarray(10) As Variant
+Dim r As Long
+Dim matchcounter As Long
+
+nonumbers = "q,w,e,r,t,y,u,i,o,p,[,],{,},a,s,d,f,g,h,j,k,l,;,:,',@,#,~,z,x,c,v,b,n,m,<,>,/,?,!,"",£,$,%,^,&,*,(,),_,-,=,+,Q,W,E,R,T,Y,U,I,O,P,A,S,D,F,G,H,J,K,L,Z,X,C,V,B,N,M"
+tempholder = Split(nonumbers, ",")
+matchcounter = 0
+
+For r = 0 To UBound(tempholder)
+    If InStr(passedvalue, tempholder(r)) <> 0 Then matchcounter = matchcounter + 1
+    End If
+Next r
+
+If matchcounter > 0 Then ifNumeric = False
+Else: ifNumeric = True
+End If
+
+End Function
+
+Public Function prod(rate As Double, picktype As String) As Double
+
+Dim x As Integer
+Dim y As Double
+
+    For x = 5 To 33
+    
+        With Sheet3
+            
+            If .Cells(x, 5).Value = picktype Then
+            y = rate / .Cells(x, 6).Value
+            End If
+        
+        End With
+    
+        prod = y
+    
+    Next x
+
+End Function
+
+Sub protection()
+
+With Sheet1
+.Protect Password:="hellcat666", UserInterfaceOnly:=True
+End With
+
+With Sheet3
+.Protect Password:="hellcat666", UserInterfaceOnly:=True
+End With
+
+With Sheet4
+.Protect Password:="hellcat666", UserInterfaceOnly:=True
+End With
+
+With Sheet7
+.Protect Password:="hellcat666", UserInterfaceOnly:=True
+End With
+
+With Sheet8
+.Protect Password:="hellcat666", UserInterfaceOnly:=True
+End With
+
+With Sheet9
+.Protect Password:="hellcat666", UserInterfaceOnly:=True
+End With
+
+End Sub
+
+Sub leaderboards_load()
+
+Dim pickerboard() As Variant
+Dim z As Long, x As Long, y As Long
+Dim lastrow As Long
+Dim counter1 As Long, rowcounter As Long, counter2 As Long
+Dim task As String
+
+rowcounter = 0
+counter2 = 0
+
+With Sheet1
+    
+    lastrow = .Cells(Rows.Count, 1).End(xlUp).Row
+    
+    For z = 3 To lastrow
+    
+        If .Cells(z, 39).Value <> "" And .Cells(z, 39).Value > 0 Then
+        rowcounter = rowcounter + 1
+        End If
+    
+    Next z
+    
+    
+    ReDim pickerboard(1 To rowcounter, 1 To 8) As Variant
+
+    For x = 3 To lastrow
+    
+        If .Cells(x, 39).Value > 0 And .Cells(x, 39).Value <> "" Then
+            counter2 = counter2 + 1
+            pickerboard(counter2, 1) = .Cells(x, 1).Value
+            pickerboard(counter2, 2) = .Cells(x, 2).Value
+            pickerboard(counter2, 3) = .Cells(x, 39).Value
+            pickerboard(counter2, 4) = .Cells(x, 40).Value
+            pickerboard(counter2, 5) = .Cells(x, 41).Value
+            pickerboard(counter2, 6) = .Cells(x, 42).Value
+            pickerboard(counter2, 7) = .Cells(x, 43).Value
+            pickerboard(counter2, 8) = .Cells(x, 44).Value
+        
+        End If
+    
+    Next x
+
+End With
+
+counter1 = 1
+
+
+With Sheet4
+    
+        .Range(.Cells(3, 3), .Cells(202, 10)).ClearContents
+        
+For y = 1 To counter2
+        
+        task = .Cells(1, 9).Value
+        If pickerboard(y, 2) = task Or task = "All chambers" Then
+        
+            .Cells(counter1 + 2, 3).Value = pickerboard(y, 1)
+            .Cells(counter1 + 2, 4).Value = pickerboard(y, 2)
+            .Cells(counter1 + 2, 5).Value = pickerboard(y, 3)
+            .Cells(counter1 + 2, 6).Value = pickerboard(y, 4)
+            .Cells(counter1 + 2, 6).NumberFormat = "0.00"
+            .Cells(counter1 + 2, 7).Value = pickerboard(y, 5)
+            .Cells(counter1 + 2, 7).NumberFormat = "0.00"
+            .Cells(counter1 + 2, 8).Value = pickerboard(y, 6)
+            .Cells(counter1 + 2, 8).NumberFormat = "0.00%"
+            .Cells(counter1 + 2, 9).Value = pickerboard(y, 7)
+            .Cells(counter1 + 2, 10).Value = pickerboard(y, 8)
+            .Cells(counter1 + 2, 10).NumberFormat = "0.00%"
+            counter1 = counter1 + 1
+            
+        End If
+    
+Next y
+
+End With
+
+End Sub
+
+Sub sort_name()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("C3"), Order1:=xlAscending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub sort_cases()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("E3"), Order1:=xlDescending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub sort_time()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("F3"), Order1:=xlDescending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub sort_prod()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("H3"), Order1:=xlDescending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub sort_errors()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("I3"), Order1:=xlDescending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub sort_accuracy()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("J3"), Order1:=xlDescending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub sort_cph()
+
+    Application.ScreenUpdating = False
+    Range("C2:J201").Select
+    Selection.Sort Key1:=Range("G3"), Order1:=xlDescending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("C3").Select
+    Application.ScreenUpdating = True
+    
 End Sub
