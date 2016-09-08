@@ -24,14 +24,15 @@ With Sheet5
 End With
 
 Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
 
 With Sheet1
 
     lastrow = .Cells(.Rows.Count, 6).End(xlUp).Row
-    lastcol = .Cells(5, .Columns.Count).End(xlToLeft).Column
+    lastcol = .Cells(1, .Columns.Count).End(xlToLeft).Column
     datafrom = .Range(.Cells(1, 5), .Cells(20, 5)).Find("Job Title", LookIn:=xlValues).Row + 1
     expirycriterion = .Range(.Cells(1, 1), .Cells(5, lastrow)).Find("Once", LookIn:=xlValues).Row
-    ReDim expiredarr(1 To lastrow, 1 To 4) As Variant
+    ReDim expiredarr(1 To lastrow * lastcol + 1, 1 To 4) As Variant
     
     j = 1
     'array row counter for below loop
@@ -92,16 +93,7 @@ With Sheet5
 
     'clear the list and formatting
     
-    .Range(.Cells(5, 2), .Cells(1000, 5)).Select
-    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-    Selection.Borders(xlEdgeLeft).LineStyle = xlNone
-    Selection.Borders(xlEdgeTop).LineStyle = xlNone
-    Selection.Borders(xlEdgeBottom).LineStyle = xlNone
-    Selection.Borders(xlEdgeRight).LineStyle = xlNone
-    Selection.Borders(xlInsideVertical).LineStyle = xlNone
-    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
-    Selection.ClearContents
+    .Range(.Cells(5, 2), .Cells(lastrow * lastcol, 5)).ClearContents
     .Cells(1, 1).Select
 
     For z = 5 To UBound(expiredarr, 1)
@@ -148,5 +140,27 @@ lastrow = Cells(Rows.Count, 2).End(xlUp).Row
     
 finish:
 Application.ScreenUpdating = True
+Application.Calculation = xlCalculationAutomatic
 
+End Sub
+
+Sub sort_by_name()
+
+Dim lastrow As Long, lastcol As Long, freq As Long, datafrom As Long
+
+freq = Range(Cells(1, 1), Cells(5, 20)).Find("Once", LookIn:=xlValues).Row
+datafrom = Range(Cells(1, 1), Cells(5, 20)).Find("Full name", LookIn:=xlValues).Row
+lastrow = Application.WorksheetFunction.Match("X", Range(Cells(1, 1), Cells(1000, 1)), 0) - 1
+lastcol = Cells(freq, Columns.Count).End(xlToLeft).Column
+
+Application.ScreenUpdating = False
+
+    Range(Cells(datafrom, 1), Cells(lastrow, lastcol)).Select
+    Selection.Sort Key1:=Range("A" & datafrom + 1), Order1:=xlAscending, Header:=xlYes, _
+        OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, _
+        DataOption1:=xlSortNormal
+    Range("A1").Select
+    
+Application.ScreenUpdating = True
+    
 End Sub
